@@ -11,8 +11,6 @@ import { collection, query, onSnapshot, orderBy, getDocs, DocumentData } from "f
 import { useCollectionDataSSR } from '../utils/useDataSSR';
 import { GetStaticProps, GetStaticPaths, GetServerSideProps } from 'next'
 
-const admin = require('firebase-admin')
-
 const StyledBox = styled(Box)`
 height: 500px;
 width: 500px;
@@ -46,29 +44,11 @@ export default Home
 
 export const getStaticProps: GetStaticProps = async (context) => {
 
-  const firebaseApp =
-  //@ts-ignore
-  global.firebaseApp ??
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: "brokerxchange-253e7",
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  })
-
-// store on global object so we can reuse it if we attempt
-// to initialize the app again
-  //@ts-ignore
-global.firebaseApp = firebaseApp
-
-//@ts-ignore
-const dbAdmin2 = global.firebaseApp.firestore()
   /* const q = query(collection(dbAdmin, "buildings"), orderBy("name_lowerCase", "asc"));
   const querySnapshot = await getDocs(q); */
 
- const snapshot = await dbAdmin2.collection("buildings").get()
-//@ts-ignore
+ const snapshot = await dbAdmin.collection("buildings").get()
+
 const data = snapshot.docs.map(doc => {
   let docData = doc
   return { ...docData.data(), id: doc.id }
