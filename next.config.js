@@ -1,15 +1,17 @@
 /** @type {import('next').NextConfig} */
-const Critters = require('critters-webpack-plugin');
 
 module.exports = {
   reactStrictMode: true,
-  plugins: [
-    new Critters({
-      // Outputs: <link rel="preload" onload="this.rel='stylesheet'">
-      preload: 'swap',
-
-      // Don't inline critical font-face rules, but preload the font URLs:
-      preloadFonts: true
-    })
-  ]
+  externals: [ 'aws-sdk', 'commonjs2 firebase-admin' ],
+  webpack: (config, { isServer }) => {
+		if (!isServer) {
+			config.resolve.fallback.fs = false;
+			config.resolve.fallback.child_process = false;
+			config.resolve.fallback.request = false;
+			config.resolve.fallback.net = false;
+			config.resolve.fallback.worker_threads = false;
+			config.resolve.fallback.tls = false;
+		}
+		return config;
+	}
 }
