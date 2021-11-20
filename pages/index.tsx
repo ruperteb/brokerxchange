@@ -65,6 +65,14 @@ const Home: NextPage<Props> = ({ buildings }) => {
     });
   }
 
+ const callApi = async () => {
+  const res = await fetch('http://localhost:3000/api/test')
+  const data = await res.json()
+  console.log(data)
+}
+
+
+
     return (
       <Container maxWidth="sm">
         <h1>Home Page</h1>
@@ -75,6 +83,7 @@ const Home: NextPage<Props> = ({ buildings }) => {
         </Link>
 
         <StyledButton onClick={handleSignOut}>Sign-Out</StyledButton>
+        <Button onClick={callApi}>API</Button>
         <StyledBox></StyledBox>
       </Container>
     );
@@ -96,14 +105,14 @@ const Home: NextPage<Props> = ({ buildings }) => {
 
     
   
-     const changeClaims = async () => {
+     /* const changeClaims = async () => {
         await firebaseAdmin.auth().setCustomUserClaims("hHXGoLUOSMgtstnrJBcQnWQzTMj1", {
             admin: true,
         })
   
     }
   
-    changeClaims()  
+    changeClaims()   */
 
     return {
       props: {
