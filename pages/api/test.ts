@@ -30,7 +30,7 @@ export default function handler(
 ) {
 
      const changeClaims = async () => {
-        await firebaseAdmin.auth().setCustomUserClaims("hHXGoLUOSMgtstnrJBcQnWQzTMj1", {
+        await firebaseAdmin.auth().setCustomUserClaims("ruperteb@gmail.com", {
             admin: false,
             number: req.body.value
         })
