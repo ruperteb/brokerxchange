@@ -82,7 +82,7 @@ const Home: NextPage<Props> = ({ buildings }) => {
       value: false
     }
 
-    const res = await fetch(/* process.env.NEXT_PUBLIC_ISPROD ?  : */ '/api/test', {
+    const res = await fetch('https://brokerxchange2.netlify.app/api/test', {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
