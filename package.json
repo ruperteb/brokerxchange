@@ -27,6 +27,7 @@
     "retry-request": "^4.2.2"
   },
   "devDependencies": {
+    "@netlify/plugin-nextjs": "^4.0.0-beta.9",
     "@types/node": "16.11.9",
     "@types/react": "17.0.35",
     "eslint": "7.32.0",
