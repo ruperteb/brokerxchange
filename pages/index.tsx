@@ -65,58 +65,59 @@ const Home: NextPage<Props> = ({ buildings }) => {
     });
   }
 
- const callApi = async () => {
-  const res = await fetch(process.env.NEXT_PUBLIC_ISPROD? 'https://brokerxchange2.netlify.app/api/test' : 'http://localhost:3000/api/test')
-  const data = await res.json()
-  console.log(data)
+  const callApi = async () => {
+    const res = await fetch(process.env.NEXT_PUBLIC_ISPROD ? 'https://brokerxchange2.netlify.app/api/test' : 'http://localhost:3000/api/test')
+    /*  const data = await res.json() */
+    const data = await res.text()
+    await console.log(data)
+  }
+
+
+
+  return (
+    <Container maxWidth="sm">
+      <h1>Home Page</h1>
+      <p>lorem*15</p>
+
+      <Link href="/login">
+        <a>Login</a>
+      </Link>
+
+      <StyledButton onClick={handleSignOut}>Sign-Out</StyledButton>
+      <Button onClick={callApi}>API</Button>
+      <StyledBox></StyledBox>
+    </Container>
+  );
 }
 
+export default Home
+
+export const getStaticProps: GetStaticProps = async (context) => {
+
+  /* const q = query(collection(dbAdmin, "buildings"), orderBy("name_lowerCase", "asc"));
+  const querySnapshot = await getDocs(q); */
+
+  const snapshot = await dbAdmin.collection("buildings").get()
+
+  const data = snapshot.docs.map(doc => {
+    let docData = doc
+    return { ...docData.data(), id: doc.id }
+  })
 
 
-    return (
-      <Container maxWidth="sm">
-        <h1>Home Page</h1>
-        <p>lorem*15</p>
 
-        <Link href="/login">
-          <a>Login</a>
-        </Link>
-
-        <StyledButton onClick={handleSignOut}>Sign-Out</StyledButton>
-        <Button onClick={callApi}>API</Button>
-        <StyledBox></StyledBox>
-      </Container>
-    );
-  }
-
-  export default Home
-
-  export const getStaticProps: GetStaticProps = async (context) => {
-
-    /* const q = query(collection(dbAdmin, "buildings"), orderBy("name_lowerCase", "asc"));
-    const querySnapshot = await getDocs(q); */
-
-    const snapshot = await dbAdmin.collection("buildings").get()
-
-    const data = snapshot.docs.map(doc => {
-      let docData = doc
-      return { ...docData.data(), id: doc.id }
+  const changeClaims = async () => {
+    await firebaseAdmin.auth().setCustomUserClaims("hHXGoLUOSMgtstnrJBcQnWQzTMj1", {
+      admin: false,
     })
 
-    
-  
-     /* const changeClaims = async () => {
-        await firebaseAdmin.auth().setCustomUserClaims("hHXGoLUOSMgtstnrJBcQnWQzTMj1", {
-            admin: true,
-        })
-  
-    }
-  
-    changeClaims()   */
-
-    return {
-      props: {
-        buildings: data
-      }, // will be passed to the page component as props
-    }
   }
+
+  changeClaims()
+
+  return {
+    props: {
+      buildings: data
+    }, // will be passed to the page component as props
+  }
+}
