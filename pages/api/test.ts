@@ -16,7 +16,7 @@ if (global.firebaseApp === null || global.firebaseApp === undefined) {
             privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
         }),
     }, "adminApp")
-    
+
 }
 
 
@@ -43,13 +43,18 @@ export default function handler(
 
     changeClaims()
 
-    admin.auth().getUser("hHXGoLUOSMgtstnrJBcQnWQzTMj1").then((userRecord: any) => {
-        // The claims can be accessed on the user record.
-        if (userRecord.customClaims) {
-            console.log(userRecord.customClaims);
-        }
+    const checkCustomClaims = async () => {
 
-    });
+       await admin.auth().getUser("hHXGoLUOSMgtstnrJBcQnWQzTMj1").then((userRecord: any) => {
+            // The claims can be accessed on the user record.
+            if (userRecord.customClaims) {
+                console.log(userRecord.customClaims);
+            }
+
+        });
+    }
+
+    checkCustomClaims()
 
     console.log(req.body);
 
