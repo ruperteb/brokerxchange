@@ -4,7 +4,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 const admin = require('firebase-admin')
-
+if (!admin.apps.length) {
 admin.initializeApp({
     credential: admin.credential.cert({
         projectId: "brokerxchange-253e7",
@@ -12,12 +12,8 @@ admin.initializeApp({
         privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
     }),
 }, "adminApp")
+}
 
-
-
-
-//@ts-ignore
-global.firebaseApp = firebaseApp
 
 
 type Data = {
