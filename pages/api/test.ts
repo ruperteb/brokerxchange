@@ -1,9 +1,9 @@
-import { firebaseAdmin, dbAdmin } from "../../utils/firebaseAdmin"
+/* import { firebaseAdmin, dbAdmin } from "../../utils/firebaseAdmin" */
 
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-/* const admin = require('firebase-admin')
+ const admin = require('firebase-admin')
 
 const firebaseApp =
 
@@ -14,7 +14,7 @@ const firebaseApp =
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
       privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
     }),
-  }, "app2") */
+  }, "app2") 
 
 
 
@@ -30,7 +30,7 @@ export default function handler(
 ) {
 
      const changeClaims = async () => {
-        await firebaseAdmin.auth().setCustomUserClaims("hHXGoLUOSMgtstnrJBcQnWQzTMj1", {
+        await admin.auth().setCustomUserClaims("hHXGoLUOSMgtstnrJBcQnWQzTMj1", {
             admin: false,
         })
     
@@ -38,7 +38,7 @@ export default function handler(
     
      changeClaims() 
 
-     firebaseAdmin.auth().getUser("hHXGoLUOSMgtstnrJBcQnWQzTMj1").then((userRecord) => {
+     admin.auth().getUser("hHXGoLUOSMgtstnrJBcQnWQzTMj1").then((userRecord:any) => {
         // The claims can be accessed on the user record.
         if(userRecord.customClaims) {
             console.log(userRecord.customClaims);
