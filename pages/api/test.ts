@@ -3,52 +3,56 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
 
- const admin = require('firebase-admin')
+const admin = require('firebase-admin')
 
-const firebaseApp =
+//@ts-ignore
+const firebaseApp = global.firebaseApp
+//@ts-ignore
+    if(global.firebaseApp === null || global.firebaseApp === undefined) {
+        admin.initializeApp({
+            credential: admin.credential.cert({
+                projectId: "brokerxchange-253e7",
+                clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+                privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+            }),
+        }, "adminApp")
+    }
+    
 
- 
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: "brokerxchange-253e7",
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  }, "app2") 
-
-
-
+//@ts-ignore
+global.firebaseApp = firebaseApp
 
 
 type Data = {
-  response: string
+    response: string
 }
 
 export default function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<Data>
+    req: NextApiRequest,
+    res: NextApiResponse<Data>
 ) {
 
-     const changeClaims = async () => {
+    const changeClaims = async () => {
         await admin.auth().setCustomUserClaims("hHXGoLUOSMgtstnrJBcQnWQzTMj1", {
             admin: false,
+            other: true
         })
-    
-    } 
-    
-     changeClaims() 
 
-     admin.auth().getUser("hHXGoLUOSMgtstnrJBcQnWQzTMj1").then((userRecord:any) => {
+    }
+
+    changeClaims()
+
+    admin.auth().getUser("hHXGoLUOSMgtstnrJBcQnWQzTMj1").then((userRecord: any) => {
         // The claims can be accessed on the user record.
-        if(userRecord.customClaims) {
+        if (userRecord.customClaims) {
             console.log(userRecord.customClaims);
         }
-        
-      });
-    
-     console.log(req.body);
 
-  res.status(200).json({ response: req.body })
+    });
+
+    console.log(req.body);
+
+    res.status(200).json({ response: req.body })
 }
 
 

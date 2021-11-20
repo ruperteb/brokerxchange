@@ -85,8 +85,8 @@ const Home: NextPage<Props> = ({ buildings }) => {
       uuid: "hHXGoLUOSMgtstnrJBcQnWQzTMj1",
       value: false
     }
-
-    const res = await fetch('https://brokerxchange2.netlify.app/api/test', {
+    /* 'https://brokerxchange2.netlify.app/api/test' */
+    const res = await fetch('/api/test', {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
