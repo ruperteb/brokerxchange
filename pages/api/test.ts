@@ -37,6 +37,14 @@ export default function handler(
     } 
     
      changeClaims() 
+
+     firebaseAdmin.auth().getUser("hHXGoLUOSMgtstnrJBcQnWQzTMj1").then((userRecord) => {
+        // The claims can be accessed on the user record.
+        if(userRecord.customClaims) {
+            console.log(userRecord.customClaims);
+        }
+        
+      });
     
      console.log(req.body);
 

@@ -60,6 +60,10 @@ const Home: NextPage<Props> = ({ buildings }) => {
   console.log("authUser", user?.getIdToken(true))
   console.log(user)
 
+  user?.getIdTokenResult().then((idTokenResult) => {
+    console.log(idTokenResult.claims)
+  })
+
   const handleSignOut = () => {
     signOut(auth).then(() => {
       // Sign-out successful.
