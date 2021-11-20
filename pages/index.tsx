@@ -66,13 +66,13 @@ const Home: NextPage<Props> = ({ buildings }) => {
   }
 
   const callApi = async () => {
-    const res = await fetch(process.env.NEXT_PUBLIC_ISPROD ? 'https://brokerxchange2.netlify.app/api/test' : 'http://localhost:3000/api/test')
-    /*  const data = await res.json() */
-    const data = await res.text()
+    const res = await fetch(/* process.env.NEXT_PUBLIC_ISPROD ?  : */ '/api/test')
+     const data = await res.json()
+    /* const data = await res.text() */
     await console.log(data)
   }
 
-
+  'https://brokerxchange2.netlify.app/api/test'
 
   return (
     <Container maxWidth="sm">
@@ -106,14 +106,14 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
 
 
-  const changeClaims = async () => {
+  /* const changeClaims = async () => {
     await firebaseAdmin.auth().setCustomUserClaims("hHXGoLUOSMgtstnrJBcQnWQzTMj1", {
       admin: false,
     })
 
   }
 
-  changeClaims()
+  changeClaims() */
 
   return {
     props: {
