@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import { useState } from 'react'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
@@ -57,7 +57,8 @@ const Home: NextPage<Props> = ({ buildings }) => {
   console.log("redux", buildingsData)
 
   const user = useAuth()
-  console.log("authUser", user)
+  console.log("authUser", user?.getIdToken(true))
+  console.log(user)
 
   const handleSignOut = () => {
     signOut(auth).then(() => {
@@ -75,19 +76,25 @@ const Home: NextPage<Props> = ({ buildings }) => {
   };
 
   const callApi = async () => {
+
+    const info = {
+      uuid: "hHXGoLUOSMgtstnrJBcQnWQzTMj1",
+      value: false
+    }
+
     const res = await fetch(/* process.env.NEXT_PUBLIC_ISPROD ?  : */ '/api/test', {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(text)
+      body: JSON.stringify(info)
     })
-     const data = await res.json()
+    const data = await res.json()
     /* const data = await res.text() */
     await console.log(data)
   }
 
-  
+
 
   return (
     <Container maxWidth="sm">
@@ -100,8 +107,8 @@ const Home: NextPage<Props> = ({ buildings }) => {
 
       <StyledButton onClick={handleSignOut}>Sign-Out</StyledButton>
       <TextField id="outlined-basic" label="Outlined" variant="outlined"
-      value={text}
-      onChange={handleTextChange}
+        value={text}
+        onChange={handleTextChange}
       />
       <Button onClick={callApi}>API</Button>
       <StyledBox></StyledBox>
