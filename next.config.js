@@ -2,7 +2,7 @@
 
 module.exports = {
   reactStrictMode: true,
-  externals: [ 'aws-sdk', 'commonjs2 firebase-admin' ],
+  externals: [ 'aws-sdk', 'commonjs2 firebase-admin', "fast-crc32c", "retry-request" ],
   webpack: (config, { isServer }) => {
 		if (!isServer) {
 			config.resolve.fallback.fs = false;
