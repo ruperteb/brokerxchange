@@ -4,20 +4,21 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 const admin = require('firebase-admin')
-
 //@ts-ignore
 const firebaseApp = global.firebaseApp
 //@ts-ignore
-    if(global.firebaseApp === null || global.firebaseApp === undefined) {
-        admin.initializeApp({
-            credential: admin.credential.cert({
-                projectId: "brokerxchange-253e7",
-                clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-                privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-            }),
-        }, "adminApp")
-    }
+if (global.firebaseApp === null || global.firebaseApp === undefined) {
+    //@ts-ignore
+    global.firebaseApp = admin.initializeApp({
+        credential: admin.credential.cert({
+            projectId: "brokerxchange-253e7",
+            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+            privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        }),
+    }, "adminApp")
     
+}
+
 
 //@ts-ignore
 global.firebaseApp = firebaseApp
