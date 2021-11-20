@@ -82,8 +82,8 @@ const Home: NextPage<Props> = ({ buildings }) => {
   const callApi = async () => {
 
     const info = {
-      uuid: "hHXGoLUOSMgtstnrJBcQnWQzTMj1",
-      value: false
+      uid: "hHXGoLUOSMgtstnrJBcQnWQzTMj1",
+      value: text
     }
     /* 'https://brokerxchange2.netlify.app/api/test' */
     const res = await fetch('/api/test', {

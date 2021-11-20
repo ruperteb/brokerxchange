@@ -1,8 +1,9 @@
-/* import { firebaseAdmin, dbAdmin } from "../../utils/firebaseAdmin" */
+import { firebaseAdmin, dbAdmin } from "../../utils/firebaseAdmin"
 
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
 
+/*
 const admin = require('firebase-admin')
 if (!admin.apps.length) {
 admin.initializeApp({
@@ -12,7 +13,7 @@ admin.initializeApp({
         privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
     }),
 })
-}
+} */
 
 
 
@@ -25,20 +26,36 @@ export default function handler(
     res: NextApiResponse<Data>
 ) {
 
-    const changeClaims = async () => {
-        await admin.auth().setCustomUserClaims("hHXGoLUOSMgtstnrJBcQnWQzTMj1", {
-            admin: false,
-            other: true
-        })
+    return new Promise((resolve , reject) => {
+        
+            firebaseAdmin.auth().setCustomUserClaims(req.body.uid, {
+                admin: "123",
+                other: req.body.value
+            })
+    
+        
+    
+      
+             // set of operations
+         .then(() => {
+                res.status(200).json({response: "success"})
+                res.end()
+                resolve("success")
+            })
+            .catch((e) => {
+                res.status(405).json(e)
+                res.end()
+                resolve("error")
+            })
+    })
+    
 
-    }
+    
 
-    changeClaims()
+    /* const checkCustomClaims = async () => {
 
-    const checkCustomClaims = async () => {
-
-        await admin.auth().getUser("hHXGoLUOSMgtstnrJBcQnWQzTMj1").then((userRecord: any) => {
-            // The claims can be accessed on the user record.
+        await firebaseAdmin.auth().getUser("hHXGoLUOSMgtstnrJBcQnWQzTMj1").then((userRecord: any) => {
+    
             if (userRecord.customClaims) {
                 console.log(userRecord.customClaims);
             }
@@ -46,11 +63,11 @@ export default function handler(
         });
     }
 
-    checkCustomClaims()
+    checkCustomClaims() */
 
-    console.log(req.body);
+    /* console.log(req.body);
 
-    res.status(200).json({ response: req.body })
+    res.status(200).json({ response: req.body }) */
 }
 
 
