@@ -21,7 +21,7 @@ const firebaseApp =
 
 
 type Data = {
-  name: string
+  response: string
 }
 
 export default function handler(
@@ -31,16 +31,16 @@ export default function handler(
 
      const changeClaims = async () => {
         await firebaseAdmin.auth().setCustomUserClaims("hHXGoLUOSMgtstnrJBcQnWQzTMj1", {
-            admin: true,
+            admin: req.body,
         })
     
     } 
     
      changeClaims() 
     
-    console.log("1")
+     console.log(req.body);
 
-  res.status(200).json({ name: 'John Doe' })
+  res.status(200).json({ response: req.body })
 }
 
 

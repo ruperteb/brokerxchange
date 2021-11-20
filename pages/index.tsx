@@ -1,3 +1,4 @@
+import {useState} from 'react'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
@@ -5,6 +6,7 @@ import Link from 'next/link'
 import Container from "@mui/material/Container";
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 import styled from '@emotion/styled';
 import { db, auth } from "../utils/firebaseClient"
 import { signOut } from "firebase/auth";
@@ -65,14 +67,27 @@ const Home: NextPage<Props> = ({ buildings }) => {
     });
   }
 
+  const [text, setText] = useState("")
+  console.log(text)
+
+  const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setText(event.target.value);
+  };
+
   const callApi = async () => {
-    const res = await fetch(/* process.env.NEXT_PUBLIC_ISPROD ?  : */ '/api/test')
+    const res = await fetch(/* process.env.NEXT_PUBLIC_ISPROD ?  : */ '/api/test', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(text)
+    })
      const data = await res.json()
     /* const data = await res.text() */
     await console.log(data)
   }
 
-  'https://brokerxchange2.netlify.app/api/test'
+  
 
   return (
     <Container maxWidth="sm">
@@ -84,6 +99,10 @@ const Home: NextPage<Props> = ({ buildings }) => {
       </Link>
 
       <StyledButton onClick={handleSignOut}>Sign-Out</StyledButton>
+      <TextField id="outlined-basic" label="Outlined" variant="outlined"
+      value={text}
+      onChange={handleTextChange}
+      />
       <Button onClick={callApi}>API</Button>
       <StyledBox></StyledBox>
     </Container>
