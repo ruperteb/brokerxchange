@@ -268,6 +268,7 @@ interface Props {
 }
 
 export const BuildingCard = React.forwardRef<HTMLDivElement, Props>(({ buildingData }, ref) => {
+    BuildingCard.displayName = "BuildingCard";
 
     const dispatch = useAppDispatch()
 
