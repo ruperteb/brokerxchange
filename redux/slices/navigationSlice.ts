@@ -1,22 +1,37 @@
 import { /* createAsyncThunk,  */createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RootState,/*  AppThunk  */} from '../../redux/store';
+import { RootState,/*  AppThunk  */ } from '../../redux/store';
 /* import { current } from '@reduxjs/toolkit' */
 
 import { DocumentData } from "firebase/firestore";
 
-
+interface CheckProps {
+    id: string;
+    checked: string
+}
 
 export interface NavigationState {
 
-    selectedBuilding: string,
-    buildingsData: DocumentData[]
+    selectedBuilding: DocumentData,
+    selectedBuildings: DocumentData[]
+
+    buildingsData: DocumentData[],
+    landlordsData: DocumentData[],
+
+    modalAdjustment: boolean,
+    addBuildingDialogOpen: boolean,
 
 }
 
 const initialState: NavigationState = {
 
-    selectedBuilding: "",
-    buildingsData: []
+    selectedBuilding: {},
+    selectedBuildings: [],
+
+    buildingsData: [],
+    landlordsData: [],
+
+    modalAdjustment: false,
+    addBuildingDialogOpen: false,
 
 };
 
@@ -31,13 +46,30 @@ export const navigationSlice = createSlice({
     initialState,
     // The `reducers` field lets us define reducers and generate associated actions
     reducers: {
-        setSelectedBuilding: (state, action: PayloadAction<string>) => {
+        setSelectedBuilding: (state, action: PayloadAction<DocumentData>) => {
             state.selectedBuilding = action.payload;
         },
         setBuildingsData: (state, action: PayloadAction<DocumentData[]>) => {
             state.buildingsData = action.payload;
         },
-       
+        addSelectedBuilding: (state, action: PayloadAction<DocumentData>) => {
+            state.selectedBuildings.push(action.payload)
+        },
+        removeSelectedBuilding: (state, action: PayloadAction<string>) => {
+            const temp = state.selectedBuildings.filter(building => building.id !== action.payload)
+            // "Mutate" the existing state to save the new array
+            state.selectedBuildings = temp
+        },
+        setLandlordsData: (state, action: PayloadAction<DocumentData[]>) => {
+            state.landlordsData = action.payload;
+        },
+        setModalAdjustment: (state, action: PayloadAction<boolean>) => {
+            state.modalAdjustment = action.payload;
+        },
+        setAddBuildingDialog: (state, action: PayloadAction<boolean>) => {
+            state.addBuildingDialogOpen = action.payload;
+        },
+
 
     },
     // The `extraReducers` field lets the slice handle actions defined elsewhere,
@@ -54,7 +86,7 @@ export const navigationSlice = createSlice({
     }, */
 });
 
-export const {setSelectedBuilding, setBuildingsData } = navigationSlice.actions;
+export const { setSelectedBuilding, setBuildingsData, addSelectedBuilding, setLandlordsData, setModalAdjustment, setAddBuildingDialog } = navigationSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of

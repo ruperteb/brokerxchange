@@ -21,6 +21,23 @@ import { useEffect } from 'react';
 
 import { useAuth } from '../utils/authProvider'
 
+import Header from "../components/Header"
+import Navigation from "../components/buildings/Navigation"
+import BuildingsPanel from "../components/buildings/BuildingsPanel"
+
+const StyledContainer = styled(Container)`
+margin-top: 75px;
+`
+
+const BlankDiv = styled.div`
+background-color: white;
+height: 100px;
+width: 100%;
+position: fixed;
+top: 0;
+z-index:100;
+`
+
 const StyledBox = styled(Box)`
 height: 500px;
 width: 500px;
@@ -35,34 +52,39 @@ const StyledButton = styled(Button)`
 `
 
 interface Props {
-  buildings: DocumentData
+  buildings: DocumentData,
+  landlords: DocumentData,
 }
 
-const Home: NextPage<Props> = ({ buildings }) => {
+const Home: NextPage<Props> = ({ buildings, landlords }) => {
 
-  const q = query(collection(db, "buildings"), orderBy("name_lowerCase", "asc"));
+  const qBuildings = query(collection(db, "buildings"), orderBy("name_lowerCase", "asc"));
 
-  const [values, loading, error] = useCollectionDataSSR(q, { startWith: buildings });
+  const qLandlords = query(collection(db, "landlords"), orderBy("name_lowerCase", "asc"));
 
-  console.log("values", values)
+  const [buildingsDataFirebase, loadingBuildings, errorBuildings] = useCollectionDataSSR(qBuildings, {idField: "id", startWith: buildings });
+
+  const [landlordsDataFirebase, loadingLandlords, errorLandlords] = useCollectionDataSSR(qLandlords, {idField: "id", startWith: landlords });
 
   const dispatch = useAppDispatch()
 
   useEffect(() => {
-    dispatch(navigationSlice.actions.setBuildingsData(values))
-  }, [values])
+    dispatch(navigationSlice.actions.setBuildingsData(buildingsDataFirebase))
+  }, [buildingsDataFirebase])
+
+  useEffect(() => {
+    dispatch(navigationSlice.actions.setLandlordsData(landlordsDataFirebase))
+  }, [landlordsDataFirebase])
+
+
 
   const buildingsData = useAppSelector((state) => state.navigation.buildingsData)
 
-  console.log("redux", buildingsData)
+  const landlordsData = useAppSelector((state) => state.navigation.landlordsData)
+
+  console.log(landlordsData)
 
   const user = useAuth()
-  console.log("authUser", user?.getIdToken(true))
-  console.log(user)
-
-  user?.getIdTokenResult().then((idTokenResult) => {
-    console.log(idTokenResult.claims)
-  })
 
   const handleSignOut = () => {
     signOut(auth).then(() => {
@@ -73,7 +95,6 @@ const Home: NextPage<Props> = ({ buildings }) => {
   }
 
   const [text, setText] = useState("")
-  console.log(text)
 
   const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setText(event.target.value);
@@ -82,7 +103,7 @@ const Home: NextPage<Props> = ({ buildings }) => {
   const callApi = async () => {
 
     const info = {
-      uid: "hHXGoLUOSMgtstnrJBcQnWQzTMj1",
+      uid: user?.uid,
       value: text
     }
     /* 'https://brokerxchange2.netlify.app/api/test' */
@@ -101,22 +122,30 @@ const Home: NextPage<Props> = ({ buildings }) => {
 
 
   return (
-    <Container maxWidth="sm">
-      <h1>Home Page</h1>
-      <p>lorem*15</p>
+    <div style={{height: "150vh"}}>
+      <Header></Header>
+      <BuildingsPanel></BuildingsPanel>
 
-      <Link href="/login">
-        <a>Login</a>
-      </Link>
+      <StyledContainer maxWidth="xl">
 
-      <StyledButton onClick={handleSignOut}>Sign-Out</StyledButton>
-      <TextField id="outlined-basic" label="Outlined" variant="outlined"
-        value={text}
-        onChange={handleTextChange}
-      />
-      <Button onClick={callApi}>API</Button>
-      <StyledBox></StyledBox>
-    </Container>
+       
+
+        <h1>Home Page</h1>
+        <p>lorem*15</p>
+
+        <Link href="/login">
+          <a>Login</a>
+        </Link>
+
+        <StyledButton onClick={handleSignOut}>Sign-Out</StyledButton>
+        <TextField id="outlined-basic" label="Outlined" variant="outlined"
+          value={text}
+          onChange={handleTextChange}
+        />
+        <Button onClick={callApi}>API</Button>
+        {/* <StyledBox></StyledBox> */}
+      </StyledContainer>
+    </div>
   );
 }
 
@@ -127,9 +156,16 @@ export const getStaticProps: GetStaticProps = async (context) => {
   /* const q = query(collection(dbAdmin, "buildings"), orderBy("name_lowerCase", "asc"));
   const querySnapshot = await getDocs(q); */
 
-  const snapshot = await dbAdmin.collection("buildings").get()
+  const snapshotBuildings = await dbAdmin.collection("buildings").orderBy("name_lowerCase", "asc").get()
 
-  const data = snapshot.docs.map(doc => {
+  const dataBuildings = snapshotBuildings.docs.map(doc => {
+    let docData = doc
+    return { ...docData.data(), id: doc.id }
+  })
+
+  const snapshotLandlords = await dbAdmin.collection("landlords").orderBy("name_lowerCase", "asc").get()
+
+  const dataLandlords = snapshotLandlords.docs.map(doc => {
     let docData = doc
     return { ...docData.data(), id: doc.id }
   })
@@ -147,7 +183,8 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
   return {
     props: {
-      buildings: data
+      buildings: dataBuildings,
+      landlords: dataLandlords
     }, // will be passed to the page component as props
   }
 }
