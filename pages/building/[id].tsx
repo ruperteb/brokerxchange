@@ -60,7 +60,7 @@ const Building: NextPage<Props> = ({ buildingData }) => {
                 <meta name="viewport" content="initial-scale=1, width=device-width" />
 
             </Head>
-            <Script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript" strategy="lazyOnload">
+            <Script id="Cloudinary Widget" src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript" strategy="lazyOnload">
             </Script>
             <BuildingHeader></BuildingHeader>
             <StyledContainer maxWidth="xl">
