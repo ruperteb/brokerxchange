@@ -5,6 +5,7 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
+import Script from 'next/script'
 
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { navigationSlice } from '../../redux/slices/navigationSlice';
@@ -57,9 +58,10 @@ const Building: NextPage<Props> = ({ buildingData }) => {
             <Head>
                 <title>Building</title>
                 <meta name="viewport" content="initial-scale=1, width=device-width" />
-                <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript">
-                </script>
+
             </Head>
+            <Script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript" strategy="lazyOnload">
+            </Script>
             <BuildingHeader></BuildingHeader>
             <StyledContainer maxWidth="xl">
                 <BuildingDetails></BuildingDetails>
