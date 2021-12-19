@@ -293,8 +293,8 @@ export default function FormDialog() {
     const onSelectLandlord = React.useCallback(
         (value: any, actionType: any) => {
             if (actionType.action === "select-option") {
-                setBuildingDetails({ ...buildingDetails, landlord: value.value, buildingsLogo: value.buildingsLogo, contactName: "", contactEmail: "", contactMobile: "", contactOffice: ""  })
-               
+                setBuildingDetails({ ...buildingDetails, landlord: value.value, buildingsLogo: value.buildingsLogo, contactName: "", contactEmail: "", contactMobile: "", contactOffice: "" })
+
                 getlandlordContacts(value.id).then((contacts) => {
                     var formattedLandlordContacts = contacts.map((contact) => {
                         return { value: contact.name, label: contact.name, email: contact.email, mobile: contact.mobile, office: contact.office }
@@ -340,34 +340,41 @@ export default function FormDialog() {
         }, [buildingDetails])
 
 
-        const submitBuilding = async () => {
-            
-            await addDoc(collection(db, "buildings"), {
-                name: buildingDetails.name,
-                name_lowerCase: buildingDetails.name_lowerCase,
-                address: buildingDetails.address,
-                buildingsLogo: buildingDetails.buildingsLogo,
-                contactEmail: buildingDetails.contactEmail,
-                contactMobile: buildingDetails.contactMobile,
-                contactName: buildingDetails.contactName,
-                contactOffice: buildingDetails.contactOffice,
-                landlord: buildingDetails.landlord,
-                lastUpdated: new Date().toISOString(),
-                province: buildingDetails.province,
-                suburb: buildingDetails.suburb,
-                suburb_lowerCase: buildingDetails.suburb_lowerCase,
-                type: buildingDetails.type,
+    const submitBuilding = async () => {
+
+        var search = `${buildingDetails.address}, ${buildingDetails.suburb} `
+
+        const coordinateRes = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${search}.json?country=za&access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`)
+        const coordinateData: any = await coordinateRes.json()
+
+        await addDoc(collection(db, "buildings"), {
+            name: buildingDetails.name,
+            name_lowerCase: buildingDetails.name_lowerCase,
+            address: buildingDetails.address,
+            buildingsLogo: buildingDetails.buildingsLogo,
+            contactEmail: buildingDetails.contactEmail,
+            contactMobile: buildingDetails.contactMobile,
+            contactName: buildingDetails.contactName,
+            contactOffice: buildingDetails.contactOffice,
+            landlord: buildingDetails.landlord,
+            lastUpdated: new Date().toISOString(),
+            province: buildingDetails.province,
+            suburb: buildingDetails.suburb,
+            suburb_lowerCase: buildingDetails.suburb_lowerCase,
+            type: buildingDetails.type,
+            lat: coordinateData.features[0].center[1],
+            lng: coordinateData.features[0].center[0]
+        })
+            .then((result) => {
+                console.log(result.id)
+                /*  if (result.id) { */
+                /*  setSuccess(true) */
+                /*  notify() */
             })
-                .then((result) => {
-                    console.log(result.id)
-                   /*  if (result.id) { */
-                        /*  setSuccess(true) */
-                       /*  notify() */
-                    })
-    
-                
-            dispatch(navigationSlice.actions.setAddBuildingDialog(false))
-        }
+
+
+        dispatch(navigationSlice.actions.setAddBuildingDialog(false))
+    }
 
 
 
@@ -472,7 +479,7 @@ export default function FormDialog() {
                         <StyledContactSelect
                             /* ref={suburbRef} */
                             /*  components={{ Placeholder, Input, ValueContainer }} */
-                            isDisabled={landlordContacts === [] || landlordContacts === undefined ? true: false}
+                            isDisabled={landlordContacts === [] || landlordContacts === undefined ? true : false}
                             isClearable
                             key="contact"
                             /* isMulti */

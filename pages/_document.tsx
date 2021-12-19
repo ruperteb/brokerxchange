@@ -12,7 +12,7 @@ export default class MyDocument extends Document {
         <Head>
           {/* PWA primary color */}
           <meta name="theme-color" content={theme.palette.primary.main} />
-          <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Julius+Sans+One&family=Ubuntu:ital,wght@1,700&display=swap" rel="stylesheet"/>
+          <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Julius+Sans+One&family=Ubuntu:ital,wght@1,700&display=swap" rel="stylesheet" />
           <link
             rel="stylesheet"
             href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
@@ -21,6 +21,7 @@ export default class MyDocument extends Document {
             rel="stylesheet"
             href="https://fonts.googleapis.com/icon?family=Material+Icons"
           />
+         
         </Head>
         <body>
           <Main />

@@ -14,6 +14,7 @@ import { useAppDispatch, useAppSelector } from "../../../redux/hooks"
 import { navigationSlice } from "../../../redux/slices/navigationSlice";
 
 import ImageSlider from "../buildingdetails/ImageSlider"
+import Map from "./Map"
 
 import { SAIcon, RentalIcon, AreaIcon } from "../../icons/Icons"
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
@@ -34,6 +35,12 @@ import { auto } from "@cloudinary/url-gen/qualifiers/format";
 import { auto as qAuto } from "@cloudinary/url-gen/qualifiers/quality";
 
 import Image from 'next/image'
+import dynamic from 'next/dynamic'
+
+import { Button } from "@mui/material";
+
+import { db, auth } from "../../../utils/firebaseClient"
+import { collection, query, onSnapshot, orderBy, getDocs, DocumentData, addDoc, updateDoc, doc, arrayUnion } from "firebase/firestore";
 
 interface MediaProps {
     desktop: boolean
@@ -58,7 +65,17 @@ display:flex;
 flex-direction:column;
 margin-top: 0px !important;
 margin: auto;
-margin-left: 1.5rem;
+    
+`
+
+
+const StyledDetailsContainerMap = styled(Card)`
+display:flex;
+flex-direction:column;
+margin-top: 1rem;
+/* margin: 0; */
+flex-grow: 1;
+
     
 `
 
@@ -188,11 +205,34 @@ margin-bottom: 1px;
 fill: #1b14a5;
 `
 
+const StyledButtonDiv = styled.div`
+display: flex;
+flex-direction: column;
+flex-wrap: wrap;
+margin-top: 1rem;
+margin-right: 1rem;
+padding: 0.5rem;
+`
+
 interface Props {
 
 }
 
 export const BuildingDetails: React.FunctionComponent<Props> = ({ }) => {
+
+    /* var search ="21 Dreyer Street, Claremont"
+
+    const fetchCoordinates = async () => {
+        const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${search}.json?country=za&access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`)
+        const data:any = await res.json()
+       return data
+    }
+    
+    fetchCoordinates().then((data)=> {
+        console.log(data)
+    }) */
+
+    /*  21%20dreyer%20street%2C%20claremont */
 
 
     const selectedBuilding = useAppSelector(state => state.navigation.selectedBuilding)
@@ -209,11 +249,91 @@ export const BuildingDetails: React.FunctionComponent<Props> = ({ }) => {
         .delivery(quality(qAuto())).toURL()
 
 
+    var tempImageArray: string[] = []
+
+    const showUploadWidget = () => {
+        // @ts-ignore: Unreachable code error
+        const myWidget = window.cloudinary.createUploadWidget(
+            {
+                cloudName: process.env.NEXT_PUBLIC_CLOUD_NAME,
+                uploadPreset: "xblzxkc8",
+
+                // Remove the comments from the code below to add 
+                // additional functionality.
+                // Note that these are only a few examples, to see 
+                // the full list of possible parameters that you 
+                // can add see:
+                //   https://cloudinary.com/documentation/upload_widget_reference
+
+                // cropping: true, //add a cropping step
+                // showAdvancedOptions: true,  //add advanced options (public_id and tag)
+                // sources: [ "local", "url"], // restrict the upload sources to URL and local files
+                // multiple: false,  //restrict upload to a single file
+                folder: `brokerxchange/${selectedBuilding?.name}`, //upload files to the specified folder
+                // tags: ["users", "profile"], //add the given tags to the uploaded files
+                // context: {alt: "user_uploaded"}, //add the given context data to the uploaded files
+                // clientAllowedFormats: ["images"], //restrict uploading to image files only
+                // maxImageFileSize: 2000000,  //restrict file size to less than 2MB
+                // maxImageWidth: 2000, //Scales the image down to a width of 2000 pixels before uploading
+                // theme: "purple", //change to a purple theme
+            },
+            (error: any, result: any) => {
+                if (!error && result && result.event === "success") {
+                    console.log("Done! Here is the image info: ", result.info.public_id);
+                    /* handleUploadImages(result.info.public_id) */
+                    tempImageArray.push(result.info.public_id)
+
+                    /*  setTempImages(tempImages => [...tempImages, result.info.public_id]) */
+
+
+
+
+                }
+
+                if (result.event === "close") {
+                    submitImages()
+
+                }
+            }
+        );
+
+        myWidget.open()
+
+    }
+
+    const submitImages = async () => {
+
+        const docRef = doc(db, "buildings", selectedBuilding.id);
+        var newImages:any = []
+
+        if (selectedBuilding.images) {
+             newImages = [...selectedBuilding.images, ...tempImageArray]
+        } else newImages= [...tempImageArray]
+
+
+        await updateDoc(docRef, {
+            images: newImages
+        })
+    }
+
+    const mapRef = React.useRef<HTMLDivElement>(null)
+    const detailsContainerRef = React.useRef<HTMLDivElement>(null)
+
+    var mapDivDimensions = {
+        width: mapRef.current?.getBoundingClientRect().width,
+        height: mapRef.current?.getBoundingClientRect().height,
+    }
+
+    const DynamicMap = dynamic(() => import('./Map'), {
+        loading: () => <p>Loading...</p>
+      });
+
+
 
     return (
 
         <Stack
-      
+
             direction="column"
         >
             <StyledTitleDiv>
@@ -223,80 +343,98 @@ export const BuildingDetails: React.FunctionComponent<Props> = ({ }) => {
             </StyledTitleDiv>
             <Stack direction="row" style={{ flexWrap: "wrap" }} >
                 <ImageSlider buildingImages={selectedBuilding.images}></ImageSlider>
-                <StyledDetailsContainer>
-                    <StyledDetailsTitleDiv>
-                        <StyledDetailsTitleText>
-                            Building Details
-                        </StyledDetailsTitleText>
-                    </StyledDetailsTitleDiv>
-                    <Stack direction="row" style={{ marginTop: "0.5rem", marginBottom: "0.5rem" }} >
-                        <Stack direction="column">
-                            <StyledTextDiv>
-                                <StyledIconDivLeft ><StyledLocationIcon /></StyledIconDivLeft>
-                                <StyledDetailsText>{selectedBuilding.address}</StyledDetailsText>
-                            </StyledTextDiv>
-                            <StyledTextDiv>
-                                <StyledIconDivLeft><StyledSuburbIcon /></StyledIconDivLeft>
-                                <StyledDetailsText>{selectedBuilding.suburb}</StyledDetailsText>
-                            </StyledTextDiv>
-                            <StyledTextDiv>
-                                <StyledIconDivLeft><StyledSAIcon viewBox="0 0 700 700"></StyledSAIcon></StyledIconDivLeft>
-                                <StyledDetailsText>{selectedBuilding.province}</StyledDetailsText>
-                            </StyledTextDiv>
-                            <StyledTextDiv style={{ position: "relative", height: "100%", width: "70%", margin: "auto" }}>
-                                <Image
-                                    src={logo}
-                                    layout="fill"
-                                    objectFit="contain"
-                                    objectPosition="right"
-                                /*  width={200}
-                                 height={50} */
-                                />
-                            </StyledTextDiv>
+                <Stack direction="column" style={{ marginLeft: "1.5rem", marginRight: "auto" }}>
+                    <StyledDetailsContainer ref={detailsContainerRef}>
+                        <StyledDetailsTitleDiv>
+                            <StyledDetailsTitleText>
+                                Building Details
+                            </StyledDetailsTitleText>
+                        </StyledDetailsTitleDiv>
+                        <Stack direction="row" style={{ marginTop: "0.5rem", marginBottom: "0.5rem" }}  >
+                            <Stack direction="column">
+                                <StyledTextDiv>
+                                    <StyledIconDivLeft ><StyledLocationIcon /></StyledIconDivLeft>
+                                    <StyledDetailsText>{selectedBuilding.address}</StyledDetailsText>
+                                </StyledTextDiv>
+                                <StyledTextDiv>
+                                    <StyledIconDivLeft><StyledSuburbIcon /></StyledIconDivLeft>
+                                    <StyledDetailsText>{selectedBuilding.suburb}</StyledDetailsText>
+                                </StyledTextDiv>
+                                <StyledTextDiv>
+                                    <StyledIconDivLeft><StyledSAIcon viewBox="0 0 700 700"></StyledSAIcon></StyledIconDivLeft>
+                                    <StyledDetailsText>{selectedBuilding.province}</StyledDetailsText>
+                                </StyledTextDiv>
+                                <StyledTextDiv style={{ position: "relative", height: "100%", width: "70%", margin: "auto" }}>
+                                    <Image
+                                        src={logo}
+                                        layout="fill"
+                                        objectFit="contain"
+                                        objectPosition="right"
+                                    /*  width={200}
+                                     height={50} */
+                                    />
+                                </StyledTextDiv>
+
+                            </Stack>
+
+                            <Stack direction="column">
+                                <StyledTextDiv>
+                                    <StyledIconDiv><StyledAreaIcon viewBox="0 0 700 700" /></StyledIconDiv>
+                                    <StyledDetailsText>{`${selectedBuilding.vacantGLA}m² vacant`}</StyledDetailsText>
+                                </StyledTextDiv>
+                                <StyledTextDiv>
+                                    <StyledIconDiv><StyledRentalIcon viewBox="0 0 700 700" /></StyledIconDiv>
+                                    <StyledDetailsText>{`R${selectedBuilding.rentalLow} to R${selectedBuilding.rentalHigh} /m²`}</StyledDetailsText>
+                                </StyledTextDiv>
+                                <StyledTextDiv>
+                                    <StyledIconDiv><StyledParkingIcon /></StyledIconDiv>
+                                    <StyledDetailsText>{`${selectedBuilding.parkingRatio} bays/100m²`}</StyledDetailsText>
+                                </StyledTextDiv>
+                                <StyledTextDiv>
+                                    <StyledIconDiv><StyledTypeIcon /></StyledIconDiv>
+                                    <StyledDetailsText>{selectedBuilding.type}</StyledDetailsText>
+                                </StyledTextDiv>
+                            </Stack>
+
+                            <Stack direction="column">
+                                <StyledTextDiv>
+                                    <StyledIconDiv><StyledContactIcon /></StyledIconDiv>
+                                    <StyledDetailsText>{selectedBuilding.contactName}</StyledDetailsText>
+                                </StyledTextDiv>
+                                <StyledTextDiv>
+                                    <StyledIconDiv><StyledEmailIcon /></StyledIconDiv>
+                                    <StyledDetailsText>{selectedBuilding.contactEmail}</StyledDetailsText>
+                                </StyledTextDiv>
+                                <StyledTextDiv>
+                                    <StyledIconDiv><StyledMobileIcon /></StyledIconDiv>
+                                    <StyledDetailsText>{selectedBuilding.contactMobile}</StyledDetailsText>
+                                </StyledTextDiv>
+                                <StyledTextDiv>
+                                    <StyledIconDiv><StyledOfficeIcon /></StyledIconDiv>
+                                    <StyledDetailsText>{selectedBuilding.contactOffice}</StyledDetailsText>
+                                </StyledTextDiv>
+                            </Stack>
 
                         </Stack>
 
-                        <Stack direction="column">
-                            <StyledTextDiv>
-                                <StyledIconDiv><StyledAreaIcon viewBox="0 0 700 700" /></StyledIconDiv>
-                                <StyledDetailsText>{`${selectedBuilding.vacantGLA}m² vacant`}</StyledDetailsText>
-                            </StyledTextDiv>
-                            <StyledTextDiv>
-                                <StyledIconDiv><StyledRentalIcon viewBox="0 0 700 700" /></StyledIconDiv>
-                                <StyledDetailsText>{`R${selectedBuilding.rentalLow} to R${selectedBuilding.rentalHigh} /m²`}</StyledDetailsText>
-                            </StyledTextDiv>
-                            <StyledTextDiv>
-                                <StyledIconDiv><StyledParkingIcon /></StyledIconDiv>
-                                <StyledDetailsText>{`${selectedBuilding.parkingRatio} bays/100m²`}</StyledDetailsText>
-                            </StyledTextDiv>
-                            <StyledTextDiv>
-                                <StyledIconDiv><StyledTypeIcon /></StyledIconDiv>
-                                <StyledDetailsText>{selectedBuilding.type}</StyledDetailsText>
-                            </StyledTextDiv>
-                        </Stack>
 
-                        <Stack direction="column">
-                            <StyledTextDiv>
-                                <StyledIconDiv><StyledContactIcon /></StyledIconDiv>
-                                <StyledDetailsText>{selectedBuilding.contactName}</StyledDetailsText>
-                            </StyledTextDiv>
-                            <StyledTextDiv>
-                                <StyledIconDiv><StyledEmailIcon /></StyledIconDiv>
-                                <StyledDetailsText>{selectedBuilding.contactEmail}</StyledDetailsText>
-                            </StyledTextDiv>
-                            <StyledTextDiv>
-                                <StyledIconDiv><StyledMobileIcon /></StyledIconDiv>
-                                <StyledDetailsText>{selectedBuilding.contactMobile}</StyledDetailsText>
-                            </StyledTextDiv>
-                            <StyledTextDiv>
-                                <StyledIconDiv><StyledOfficeIcon /></StyledIconDiv>
-                                <StyledDetailsText>{selectedBuilding.contactOffice}</StyledDetailsText>
-                            </StyledTextDiv>
-                        </Stack>
+
+                    </StyledDetailsContainer>
+                    <Stack direction="row" style={{ flexGrow: 1 }}>
+                        <StyledButtonDiv>
+                            <Button variant="outlined" onClick={showUploadWidget}>Upload Images</Button>
+                        </StyledButtonDiv>
+                        <StyledDetailsContainerMap ref={mapRef} >
+                            <div /* style={{ padding: "0.5rem" }} */>
+                                <DynamicMap latMap={selectedBuilding.lat} lngMap={selectedBuilding.lng} mapDivDimensions={mapDivDimensions}></DynamicMap>
+                            </div>
+                        </StyledDetailsContainerMap>
 
                     </Stack>
 
-                </StyledDetailsContainer>
+
+                </Stack>
+
 
             </Stack>
 

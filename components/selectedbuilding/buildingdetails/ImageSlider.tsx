@@ -33,8 +33,9 @@ interface MediaProps {
 const StyledGalleryCard = styled(Card)`
 display:flex;
 /* padding: 0.5rem; */
-margin-top: 0px;
+margin-top: 0px !important;
 margin: auto;
+width: 600px;
 `
 
 
@@ -68,7 +69,7 @@ export const ImageSlider: React.FunctionComponent<Props> = ({ buildingImages }) 
         images = buildingImages.map((image) => {
 
             return {
-                original: cld.image(image).resize(fill().width(600).height(400)).delivery(format(auto()))
+                original: cld.image(image).resize(fill().width(1200).height(800)).delivery(format(auto()))
                     .delivery(quality(qAuto())).toURL(),
                 thumbnail: cld.image(image).resize(fill().width(300).height(200)).delivery(format(auto()))
                     .delivery(quality(qAuto())).toURL(),
@@ -76,6 +77,13 @@ export const ImageSlider: React.FunctionComponent<Props> = ({ buildingImages }) 
             }
         })
 
+    } else {
+        images = [{
+            original: cld.image("/brokerxchange/Sunclare Building/Sunclare-Building-Claremont-5_ipnlpp.jpg").resize(fill().width(1200).height(800)).delivery(format(auto()))
+                .delivery(quality(qAuto())).toURL(),
+            thumbnail: cld.image("/brokerxchange/Sunclare Building/Sunclare-Building-Claremont-5_ipnlpp.jpg").resize(fill().width(300).height(200)).delivery(format(auto()))
+                .delivery(quality(qAuto())).toURL(),
+        }]
     }
 
 

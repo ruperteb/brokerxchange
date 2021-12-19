@@ -16,6 +16,8 @@ import { AuthProvider } from '../utils/authProvider';
 
 import { PersistGate } from 'redux-persist/integration/react'
 
+import 'mapbox-gl/dist/mapbox-gl.css';
+
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -31,7 +33,7 @@ const App = (props: MyAppProps) => {
   return (
     <CacheProvider value={emotionCache}>
       <Head>
-        <title>My page</title>
+        <title>brokerXchange</title>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head>
       <AuthProvider>

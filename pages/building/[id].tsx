@@ -52,7 +52,14 @@ const Building: NextPage<Props> = ({ buildingData }) => {
 
 
     return (
+
         <div >
+            <Head>
+                <title>Building</title>
+                <meta name="viewport" content="initial-scale=1, width=device-width" />
+                <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript">
+                </script>
+            </Head>
             <BuildingHeader></BuildingHeader>
             <StyledContainer maxWidth="xl">
                 <BuildingDetails></BuildingDetails>
