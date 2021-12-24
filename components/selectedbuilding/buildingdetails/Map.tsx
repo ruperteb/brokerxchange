@@ -1,7 +1,14 @@
 import React, { useRef, useEffect, useState } from 'react';
 import styled from "@emotion/styled"
 
+import IconButton from '@mui/material/IconButton';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
+
 import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
+
+import { db } from "../../../utils/firebaseClient"
+import { updateDoc, doc } from "firebase/firestore";
+
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!
 
@@ -20,32 +27,28 @@ position: relative;
 
 `
 
-const StyledSidebar = styled.div`
-background-color: rgba(35, 55, 75, 0.9);
-color: #fff;
-padding: 6px 12px;
-font-family: monospace;
-z-index: 1;
-/* position: absolute; */
-top: 0;
-left: 0;
-margin: 12px;
-border-radius: 4px;
+const StyledSaveButton = styled(IconButton)`
+position: absolute;
+top: 1rem;
+right: 1rem;
+background-color: #ffffffab;
+&:hover {
+    background-color: #0000ff21;
+}
+
 `
 
-const Test = styled.div`
-height: 20px;
-width: 20px;
-background-color: red;
-`
+
+
 
 interface Props {
     mapDivDimensions: { width: number | undefined, height: number | undefined },
     latMap: number,
-    lngMap: number
+    lngMap: number,
+    id: string
 }
 
-export const Map: React.FunctionComponent<Props> = ({ mapDivDimensions, latMap, lngMap }) => {
+export const Map: React.FunctionComponent<Props> = ({ mapDivDimensions, latMap, lngMap, id }) => {
 
     const mapContainer = useRef<HTMLDivElement>(null);
     const map = useRef<any>(null);
@@ -85,20 +88,48 @@ export const Map: React.FunctionComponent<Props> = ({ mapDivDimensions, latMap, 
 
     useEffect(() => {
         if (marker.current) return;
-        marker.current = new mapboxgl.Marker(/* el */)
+        marker.current = new mapboxgl.Marker({/* el */draggable: true })
             .setLngLat([lng, lat])
             .addTo(map.current);
 
     }, [lng, lat])
 
+    const onDragEnd = () => {
+        const lngLat = marker.current.getLngLat();
+        setMarketLngLat({
+            lng: lngLat.lng,
+            lat: lngLat.lat
+        })
+    }
 
+    useEffect(() => {
+        if (!marker.current) return; // wait for map to initialize
+        marker.current.on('dragend', onDragEnd);
+    });
+
+    interface MarkerLngLat {
+        lng: number,
+        lat: number
+    }
+
+    const [markerLngLat, setMarketLngLat] = React.useState<MarkerLngLat>()
+
+    const saveCoordinates = async () => {
+
+        const docRef = doc(db, "buildings", id);
+        if (markerLngLat)
+            await updateDoc(docRef, {
+                lng: markerLngLat?.lng,
+                lat: markerLngLat?.lat,
+            })
+    }
 
     return (
-        <div>
-            {/* <StyledSidebar>
-                Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
-            </StyledSidebar> */}
+        <div style={{ position: "relative" }}>
             <StyledMapDiv width={mapDivDimensions.width} height={mapDivDimensions.height} ref={mapContainer} />
+            <StyledSaveButton onClick={saveCoordinates} color="primary" aria-label="save" >
+                <SaveOutlinedIcon />
+            </StyledSaveButton>
         </div>
     )
 }

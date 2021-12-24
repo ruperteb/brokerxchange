@@ -31,10 +31,11 @@ margin-top: 75px;
 
 interface Props {
     buildingData: DocumentData,
+    premisesData: DocumentData[],
 
 }
 
-const Building: NextPage<Props> = ({ buildingData }) => {
+const Building: NextPage<Props> = ({ buildingData, premisesData }) => {
 
     const dispatch = useDispatch()
 
@@ -45,11 +46,13 @@ const Building: NextPage<Props> = ({ buildingData }) => {
 
     const [buildingDataFirebase, loadingBuildings, errorBuildings] = useDocumentDataSSR(docRef, { idField: "id", startWith: buildingData });
 
+    const qPremises = query(collection(db, "buildings/" + id + "/premises"), orderBy("name_lowerCase", "asc"));
 
+    const [premisesDataFirebase, loadingPremises, errorPremises] = useCollectionDataSSR(qPremises, { idField: "id", startWith: premisesData });
 
     React.useEffect(() => {
-        dispatch(navigationSlice.actions.setSelectedBuilding(buildingDataFirebase))
-    }, [buildingDataFirebase])
+        dispatch(navigationSlice.actions.setSelectedBuilding({...buildingDataFirebase, premises: premisesDataFirebase }))
+    }, [buildingDataFirebase, premisesDataFirebase ])
 
 
     return (
@@ -94,9 +97,18 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
     let building = snapshotBuilding.data()
 
+    const snapshotPremises = await dbAdmin.collection("buildings/" + params?.id + "/premises").orderBy("name_lowerCase", "asc").get()
+
+    const premises = snapshotPremises.docs.map(doc => {
+        let docData = doc
+        return { ...docData.data(), id: doc.id }
+    })
+
+
     return {
         props: {
             buildingData: building,
+            premisesData: premises
         },
         revalidate: 60,
     }

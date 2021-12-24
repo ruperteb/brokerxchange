@@ -19,6 +19,10 @@ export interface NavigationState {
 
     modalAdjustment: boolean,
     addBuildingDialogOpen: boolean,
+    editBuildingDialogOpen: boolean,
+
+    addPremisesDialogOpen: boolean,
+    editPremisesDialogOpen: boolean,
 
 }
 
@@ -32,6 +36,10 @@ const initialState: NavigationState = {
 
     modalAdjustment: false,
     addBuildingDialogOpen: false,
+    editBuildingDialogOpen: false,
+
+    addPremisesDialogOpen: false,
+    editPremisesDialogOpen: false,
 
 };
 
@@ -69,6 +77,15 @@ export const navigationSlice = createSlice({
         setAddBuildingDialog: (state, action: PayloadAction<boolean>) => {
             state.addBuildingDialogOpen = action.payload;
         },
+        setEditBuildingDialog: (state, action: PayloadAction<boolean>) => {
+            state.editBuildingDialogOpen = action.payload;
+        },
+        setAddPremisesDialog: (state, action: PayloadAction<boolean>) => {
+            state.addPremisesDialogOpen = action.payload;
+        },
+        setEditPremisesDialog: (state, action: PayloadAction<boolean>) => {
+            state.editPremisesDialogOpen = action.payload;
+        },
 
 
     },
@@ -86,7 +103,17 @@ export const navigationSlice = createSlice({
     }, */
 });
 
-export const { setSelectedBuilding, setBuildingsData, addSelectedBuilding, setLandlordsData, setModalAdjustment, setAddBuildingDialog } = navigationSlice.actions;
+export const {
+    setSelectedBuilding,
+    setBuildingsData,
+    addSelectedBuilding,
+    setLandlordsData,
+    setModalAdjustment,
+    setAddBuildingDialog,
+    setEditBuildingDialog,
+    setAddPremisesDialog,
+    setEditPremisesDialog,
+} = navigationSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of

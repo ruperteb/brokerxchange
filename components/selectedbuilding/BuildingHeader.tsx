@@ -1,5 +1,7 @@
 import React from "react"
 
+import { useRouter } from 'next/router'
+
 import styled from '@emotion/styled';
 
 import Stack from '@mui/material/Stack';
@@ -12,6 +14,9 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { useAppDispatch, useAppSelector } from "../../redux/hooks"
 import { navigationSlice } from "../../redux/slices/navigationSlice";
+
+import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
+import IconButton from '@mui/material/IconButton';
 
 
 interface VisibilityProps {
@@ -83,11 +88,22 @@ font-size: 2.5rem;
 }
 `
 
+const StyledBackButton = styled(IconButton)`
+position: absolute;
+left:4rem;
+color: #1b14a5;
+`
+const StyledBackIcon = styled(ArrowBackOutlinedIcon)`
+font-size: 2rem;
+`
+
 interface Props {
 
 }
 
 export const Header: React.FunctionComponent<Props> = ({ }) => {
+
+    const router = useRouter()
     
     const modalAdjustment = useAppSelector(state => state.navigation.modalAdjustment)
 
@@ -97,6 +113,8 @@ export const Header: React.FunctionComponent<Props> = ({ }) => {
     const scrollTop = () => {
         window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
     }
+
+    
 
     return (
 
@@ -108,6 +126,9 @@ export const Header: React.FunctionComponent<Props> = ({ }) => {
             alignItems="center"
             spacing={2}
         >
+            <StyledBackButton onClick={() => router.back()}>
+                <StyledBackIcon/>
+            </StyledBackButton>
 
             <LogoDiv /* visible={visible} */>
                 {/* <StyledImg onClick={scrollTop} src={Logo}></StyledImg> */}

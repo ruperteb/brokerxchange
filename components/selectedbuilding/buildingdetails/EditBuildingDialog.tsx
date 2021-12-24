@@ -9,14 +9,14 @@ import DialogTitle from '@mui/material/DialogTitle';
 
 import styled from "@emotion/styled"
 
-import { useAppDispatch, useAppSelector } from "../../redux/hooks"
-import { navigationSlice } from "../../redux/slices/navigationSlice";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks"
+import { navigationSlice } from "../../../redux/slices/navigationSlice";
 
 import Select from 'react-select'
 import CreatableSelect from 'react-select/creatable';
 
-import { db, auth } from "../../utils/firebaseClient"
-import { collection, query, onSnapshot, orderBy, getDocs, DocumentData, addDoc } from "firebase/firestore";
+import { db, auth } from "../../../utils/firebaseClient"
+import { collection, query, onSnapshot, orderBy, getDocs, DocumentData, addDoc, updateDoc, doc } from "firebase/firestore";
 /* import { stringify } from 'querystring'; */
 
 
@@ -92,31 +92,21 @@ interface Props {
 
 }
 
-export const AddBuildingDialog: React.FC<Props> = ({ }) => {
-    /* const [open, setOpen] = React.useState(false); */
+export const EditBuildingDialog: React.FC<Props> = ({ }) => {
+    
 
     const dispatch = useAppDispatch()
-    const addBuildingDialogOpen = useAppSelector((state) => state.navigation.addBuildingDialogOpen)
+    const editBuildingDialogOpen = useAppSelector((state) => state.navigation.editBuildingDialogOpen)
 
 
     const handleClose = () => {
-        dispatch(navigationSlice.actions.setAddBuildingDialog(false))
+        dispatch(navigationSlice.actions.setEditBuildingDialog(false))
     };
 
     const landlordsData = useAppSelector((state) => state.navigation.landlordsData)
     const buildingsData = useAppSelector((state) => state.navigation.buildingsData)
+    const selectedBuilding = useAppSelector((state) => state.navigation.selectedBuilding)
 
-    /* var landlordNameData = landlordsData.map((landlord: any) => { return landlord.name }) */
-
-    /*  let combinedLandlordNameData: any = [] */
-
-    /* landlordNameData.map((landlord) => {
-        landlord.map((name:any) => {
-            combinedLandlordNameData = [...combinedLandlordNameData, name]
-        })
-    }) */
-
-    /* var distinctLandlordNames: string[] = Array.from(new Set(landlordNameData.map((name: string) => { return name }))) */
 
     var formattedLandlordNames = landlordsData.map((landlord) => {
         return { value: landlord.name, label: landlord.name, id: landlord.id, buildingsLogo: landlord.buildingsLogo }
@@ -174,21 +164,21 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
     }
 
     const [buildingDetails, setBuildingDetails] = React.useState<BuildingDetails>({
-        name: "",
-        name_lowerCase: "",
-        address: "",
-        buildingsLogo: "",
-        contactEmail: "",
-        contactMobile: "",
-        contactName: "",
-        contactOffice: "",
-        landlord: "",
-        landlordId: "",
-        lastUpdated: "",  //Date.now().toISOString()
-        province: "",
-        suburb: "",
-        suburb_lowerCase: "",
-        type: "",
+        name: selectedBuilding.name,
+        name_lowerCase: selectedBuilding.name_lowerCase,
+        address: selectedBuilding.address,
+        buildingsLogo: selectedBuilding.buildingsLogo,
+        contactEmail: selectedBuilding.contactEmail,
+        contactMobile: selectedBuilding.contactMobile,
+        contactName: selectedBuilding.contactName,
+        contactOffice: selectedBuilding.contactOffice,
+        landlord: selectedBuilding.landlord,
+        landlordId: selectedBuilding.landlordId,
+        lastUpdated: selectedBuilding.lastUpdated,  //Date.now().toISOString()
+        province: selectedBuilding.province,
+        suburb: selectedBuilding.suburb,
+        suburb_lowerCase: selectedBuilding.suburb_lowerCase,
+        type: selectedBuilding.type,
     })
 
     console.log(buildingDetails)
@@ -205,6 +195,7 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
             height: "40px"
         }),
          container: (provided: any, state: any) => ({
+             
              ...provided,
              width: "auto",
              marginTop: "1rem",
@@ -215,10 +206,15 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
              ...provided,
              zIndex: 100000,
              position: "absolute"
+            
+ 
          }),
          menuPortal: (provided: any, state: any) => ({
              ...provided,
              zIndex: 100000,
+ 
+            
+ 
          }),
         menuList: (provided: any, state: any) => ({
             ...provided,
@@ -249,6 +245,15 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
         })
         return contacts
     }
+
+    React.useEffect(()=>{
+        getlandlordContacts(selectedBuilding.landlordId).then((contacts) => {
+            var formattedLandlordContacts = contacts.map((contact) => {
+                return { value: contact.name, label: contact.name, email: contact.email, mobile: contact.mobile, office: contact.office }
+            })
+            setLandlordContacts(formattedLandlordContacts)
+        })
+    },[])
 
     const onSelectType = React.useCallback(
         (value: any, actionType: any) => {
@@ -323,7 +328,7 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
                 setBuildingDetails({ ...buildingDetails, contactName: "", contactEmail: "", contactMobile: "", contactOffice: "" })
             }
         }, [buildingDetails])
-  
+
 
     const handleNameChange = React.useCallback(
         (e: any) => {
@@ -338,12 +343,14 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
 
     const submitBuilding = async () => {
 
+        const docRef = doc(db, "buildings", selectedBuilding.id);
+
         var search = `${buildingDetails.address}, ${buildingDetails.suburb} `
 
         const coordinateRes = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${search}.json?country=za&access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`)
         const coordinateData: any = await coordinateRes.json()
 
-        await addDoc(collection(db, "buildings"), {
+        await updateDoc(docRef, {
             name: buildingDetails.name,
             name_lowerCase: buildingDetails.name_lowerCase,
             address: buildingDetails.address,
@@ -363,21 +370,15 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
             lng: coordinateData.features[0].center[0]
         })
             .then((result) => {
-                console.log(result.id)
+                console.log(result)
                 /*  if (result.id) { */
                 /*  setSuccess(true) */
                 /*  notify() */
             })
 
 
-        dispatch(navigationSlice.actions.setAddBuildingDialog(false))
+        dispatch(navigationSlice.actions.setEditBuildingDialog(false))
     }
-
-
-
-
-
-
 
 
 
@@ -386,7 +387,7 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
 
             <Dialog
                 maxWidth="xl"
-                closeAfterTransition={true} open={addBuildingDialogOpen} onClose={handleClose}
+                closeAfterTransition={true} open={editBuildingDialogOpen} onClose={handleClose}
                 TransitionProps={{
                     onExited: () => {
                         dispatch(navigationSlice.actions.setModalAdjustment(false))
@@ -398,7 +399,7 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
                 }}
             /* transitionDuration={{ enter: 1000, exit: 1000 }} */
             >
-                <DialogTitle>Add Building</DialogTitle>
+                <DialogTitle>Edit Building</DialogTitle>
                 <DialogContent>
                     <StyledBuildingDetails>
                         <StyledBuildingName
@@ -407,6 +408,7 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
                             label="Building Name"
                             variant="outlined"
                             onChange={handleNameChange}
+                            value={buildingDetails.name}
                         /* defaultValue="Hello World" */
                         />
                         <StyledTypeSelect
@@ -416,6 +418,7 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
                             styles={customSelectStyles}
                             options={typeOptions}
                             onChange={onSelectType}
+
                             menuPortalTarget={document.body}
                             value={buildingDetails.type !== "" ? { value: buildingDetails.type, label: buildingDetails.type } : null}
                         />
@@ -425,6 +428,7 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
                             label="Address"
                             variant="outlined"
                             onChange={handleAddressChange}
+                            value={buildingDetails.address}
                         /* defaultValue="Hello World" */
                         />
                         <StyledSuburbSelect
@@ -487,4 +491,4 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
     );
 }
 
-export default AddBuildingDialog
+export default EditBuildingDialog

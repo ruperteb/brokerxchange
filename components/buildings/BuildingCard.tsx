@@ -10,7 +10,7 @@ import DirectionsCarFilledOutlinedIcon from '@mui/icons-material/DirectionsCarFi
 import Checkbox from '@mui/material/Checkbox';
 import MUILink from '@mui/material/Link';
 
-import {SAIcon, RentalIcon, AreaIcon} from "../icons/Icons"
+import { SAIcon, RentalIcon, AreaIcon } from "../icons/Icons"
 
 import { DocumentData } from "firebase/firestore";
 
@@ -55,7 +55,7 @@ width: 100%;
 
 const BuildingTitleDiv = styled.div`
 display:flex;
-background-color: #1b14a5;
+background-color: #0f0c50e6;
 padding-bottom: 0.2rem;
 position: relative;
 `
@@ -71,6 +71,7 @@ display: inline-block;
 cursor: pointer;
 margin: auto;
 margin-left: 25%;
+text-shadow: 1px 1px 10px black;
 
   &::after {
     content: '';
@@ -263,16 +264,29 @@ fill: #1b14a5;
 
 
 interface Props {
-    buildingData: DocumentData
-    /*  ref: React.RefObject<unknown> */
+    buildingData: DocumentData,
+    /* scrollRef: React.RefObject<HTMLDivElement> */
+
 }
 
-export const BuildingCard = React.forwardRef<HTMLDivElement, Props>(({ buildingData }, ref) => {
+export const BuildingCard: React.FC<Props> = ({ buildingData, /* scrollRef */ }) => {
     BuildingCard.displayName = "BuildingCard";
+    const scrollRef = React.useRef<HTMLDivElement>(null)
+
+   /*  console.log(scrollRef.current?.offsetTop) */
+
+
+
 
     const dispatch = useAppDispatch()
-
+    const selectedBuilding = useAppSelector(state => state.navigation.selectedBuilding)
     const selectedBuildings = useAppSelector(state => state.navigation.selectedBuildings)
+
+    
+
+
+   
+
 
     const router = useRouter()
 
@@ -358,7 +372,7 @@ export const BuildingCard = React.forwardRef<HTMLDivElement, Props>(({ buildingD
 
     return (
 
-        <StyledPaper ref={ref} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}  >
+        <StyledPaper ref={scrollRef} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}  >
             <Image
                 src={cardImage}
                 layout="intrinsic"
@@ -410,7 +424,7 @@ export const BuildingCard = React.forwardRef<HTMLDivElement, Props>(({ buildingD
                                     <IconDiv>
                                         <StyledAreaIcon viewBox="0 0 700 700" style={{ marginLeft: "5px", marginBottom: "5px" }}></StyledAreaIcon>
                                     </IconDiv>
-                                    <BuildingDetailsText>{`${buildingData.vacantGLA}m² vacant`}</BuildingDetailsText>
+                                    <BuildingDetailsText>{`${+buildingData.vacantGLA.toFixed(2)}m² vacant`}</BuildingDetailsText>
                                 </>
                                 : <></>}
                         </BuildingDetailsCell>
@@ -420,7 +434,7 @@ export const BuildingCard = React.forwardRef<HTMLDivElement, Props>(({ buildingD
                                     <IconDiv>
                                         <StyledRentalIcon viewBox="0 0 700 700" style={{ marginLeft: "5px", marginBottom: "5px" }}></StyledRentalIcon>
                                     </IconDiv>
-                                    <BuildingDetailsText>{`R${buildingData.rentalLow}/m² to R${buildingData.rentalHigh}/m²`}</BuildingDetailsText>
+                                    <BuildingDetailsText>{`R${+buildingData.rentalLow.toFixed(2)}/m² to R${+buildingData.rentalHigh.toFixed(2)}/m²`}</BuildingDetailsText>
                                 </>
                                 : <></>}
                         </BuildingDetailsCell>
@@ -430,7 +444,7 @@ export const BuildingCard = React.forwardRef<HTMLDivElement, Props>(({ buildingD
                                     <IconDiv>
                                         <StyledParkingIcon></StyledParkingIcon>
                                     </IconDiv>
-                                    <BuildingDetailsText>{`${buildingData.parkingRatio} bays/100m² `}</BuildingDetailsText>
+                                    <BuildingDetailsText>{`${+buildingData.parkingRatio.toFixed(1)} bays/100m² `}</BuildingDetailsText>
                                 </>
                                 : <></>}
                         </BuildingDetailsCell>
@@ -471,6 +485,6 @@ export const BuildingCard = React.forwardRef<HTMLDivElement, Props>(({ buildingD
 
 
     )
-})
+}
 
 export default BuildingCard
