@@ -15,6 +15,7 @@ const animatedPropertyListItemStyles: CSSProperties = {
 }
 
 const AnimatedListItem = forwardRef<HTMLDivElement,Props>(( props, ref) => (
+  
   <div ref ={ref} {...props} style={animatedPropertyListItemStyles}>
     {props.children}
   </div>
@@ -23,7 +24,7 @@ const AnimatedListItem = forwardRef<HTMLDivElement,Props>(( props, ref) => (
 
 );
 
-
+AnimatedListItem.displayName = "AnimatedListItem";
 
 
 export default AnimatedListItem;
