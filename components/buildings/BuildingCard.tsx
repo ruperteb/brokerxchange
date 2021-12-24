@@ -434,7 +434,7 @@ export const BuildingCard: React.FC<Props> = ({ buildingData, /* scrollRef */ })
                                     <IconDiv>
                                         <StyledRentalIcon viewBox="0 0 700 700" style={{ marginLeft: "5px", marginBottom: "5px" }}></StyledRentalIcon>
                                     </IconDiv>
-                                    <BuildingDetailsText>{`R${+buildingData.rentalLow.toFixed(2)}/m² to R${+buildingData.rentalHigh.toFixed(2)}/m²`}</BuildingDetailsText>
+                                    <BuildingDetailsText>{`R${buildingData.rentalLow.toFixed(2)}/m² to R${buildingData.rentalHigh.toFixed(2)}/m²`}</BuildingDetailsText>
                                 </>
                                 : <></>}
                         </BuildingDetailsCell>
