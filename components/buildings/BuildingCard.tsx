@@ -429,7 +429,7 @@ export const BuildingCard: React.FC<Props> = ({ buildingData, /* scrollRef */ })
                                 : <></>}
                         </BuildingDetailsCell>
                         <BuildingDetailsCell>
-                            {buildingData.rentalLow || buildingData.rentalHigh ?
+                            {buildingData.rentalLow && buildingData.rentalHigh ?
                                 <>
                                     <IconDiv>
                                         <StyledRentalIcon viewBox="0 0 700 700" style={{ marginLeft: "5px", marginBottom: "5px" }}></StyledRentalIcon>
