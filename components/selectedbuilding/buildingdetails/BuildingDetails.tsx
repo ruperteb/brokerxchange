@@ -380,7 +380,7 @@ export const BuildingDetails: React.FunctionComponent<Props> = ({ }) => {
                                     </StyledTextDiv>
                                     <StyledTextDiv>
                                         <StyledIconDiv><StyledRentalIcon viewBox="0 0 700 700" /></StyledIconDiv>
-                                        <StyledDetailsText>{selectedBuilding.rentalLow ?`R${+selectedBuilding.rentalLow.toFixed(2)} to R${+selectedBuilding.rentalHigh.toFixed(2)} /m²`: ""}</StyledDetailsText>
+                                        <StyledDetailsText>{selectedBuilding.rentalLow ?`R${+selectedBuilding.rentalLow} to R${+selectedBuilding.rentalHigh} /m²`: ""}</StyledDetailsText>
                                     </StyledTextDiv>
                                     <StyledTextDiv>
                                         <StyledIconDiv><StyledParkingIcon /></StyledIconDiv>
