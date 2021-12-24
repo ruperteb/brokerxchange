@@ -539,7 +539,9 @@ interface Props {
 
 export const PremisesList: React.FC<Props> = ({ buildingId, premises }) => {
 
-    var rows = premises
+    var rows: Premises[] = []
+
+    rows = premises
 
     const dispatch = useDispatch()
 
