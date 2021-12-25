@@ -540,14 +540,14 @@ interface Props {
 
 export const PremisesList: React.FC<Props> = ({ buildingId, premises }) => {
 
-    const selectedBuilding = useAppSelector(state => state.navigation.selectedBuilding)
+    /* const selectedBuilding = useAppSelector(state => state.navigation.selectedBuilding) */
 
-    console.log("selectedBuildings", selectedBuilding)
+    /* console.log("selectedBuildings", selectedBuilding) */
     console.log("premises", premises)
 
     var rows: Premises[] = []
 
-    rows = selectedBuilding.premises
+    rows = premises
 
     const dispatch = useDispatch()
 
@@ -1072,8 +1072,8 @@ export const PremisesList: React.FC<Props> = ({ buildingId, premises }) => {
                 label="Dense padding"
             /> */}
 
-            <AddPremisesDialog buildingId={buildingId} premises={selectedBuilding.premises}></AddPremisesDialog>
-            <EditPremisesDialog buildingId={buildingId} premises={selectedBuilding.premises} selectedPremises={selectedPremises} ></EditPremisesDialog>
+            <AddPremisesDialog buildingId={buildingId} premises={premises}></AddPremisesDialog>
+            <EditPremisesDialog buildingId={buildingId} premises={premises} selectedPremises={selectedPremises} ></EditPremisesDialog>
         </Box>
     );
 }

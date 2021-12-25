@@ -218,7 +218,7 @@ padding: 0.5rem;
 `
 
 const DynamicMap = dynamic(() => import('./Map'), {
-    loading: () => <p>Loading...</p>
+    loading: () => <p>Loading...</p>, ssr: false
 });
 
 interface Props {
