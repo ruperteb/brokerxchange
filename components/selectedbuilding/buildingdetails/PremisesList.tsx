@@ -538,9 +538,12 @@ interface Props {
     premises: Premises[],
 }
 
-export const PremisesList: React.FC<Props> = ({ buildingId/* , premises */ }) => {
+export const PremisesList: React.FC<Props> = ({ buildingId, premises }) => {
 
     const selectedBuilding = useAppSelector(state => state.navigation.selectedBuilding)
+
+    console.log("selectedBuildings", selectedBuilding)
+    console.log("premises", premises)
 
     var rows: Premises[] = []
 

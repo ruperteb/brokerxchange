@@ -67,7 +67,9 @@ const Building: NextPage<Props> = ({ buildingData, premisesData }) => {
             </Script>
             <BuildingHeader></BuildingHeader>
             <StyledContainer maxWidth="xl">
-                <BuildingDetails></BuildingDetails>
+                {loadingBuildings || loadingPremises ? 
+                <div>Loading</div> :
+                <BuildingDetails></BuildingDetails>}
 
 
             </StyledContainer>
