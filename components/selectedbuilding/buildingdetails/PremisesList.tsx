@@ -46,6 +46,7 @@ import { DocumentData, doc, deleteDoc, addDoc, collection, query, getDocs, updat
 
 import AddPremisesDialog from './AddPremisesDialog';
 import EditPremisesDialog from './EditPremisesDialog';
+import { useAppSelector } from '../../../redux/hooks';
 
 
 
@@ -307,11 +308,11 @@ interface EnhancedTableProps {
     onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
     order: Order;
     orderBy: string;
-    /* rowCount: number; */
+    rowCount: number;
 }
 
 function EnhancedTableHead(props: EnhancedTableProps) {
-    const { onSelectAllClick, order, orderBy, numSelected, /* rowCount, */ onRequestSort } =
+    const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } =
         props;
     const createSortHandler =
         (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
@@ -537,11 +538,13 @@ interface Props {
     premises: Premises[],
 }
 
-export const PremisesList: React.FC<Props> = ({ buildingId, premises }) => {
+export const PremisesList: React.FC<Props> = ({ buildingId/* , premises */ }) => {
+
+    const selectedBuilding = useAppSelector(state => state.navigation.selectedBuilding)
 
     var rows: Premises[] = []
 
-    rows = premises
+    rows = selectedBuilding.premises
 
     const dispatch = useDispatch()
 
@@ -888,7 +891,7 @@ export const PremisesList: React.FC<Props> = ({ buildingId, premises }) => {
                             orderBy={orderBy}
                             onSelectAllClick={handleSelectAllClick}
                             onRequestSort={handleRequestSort}
-                            /* rowCount={rows.length} */
+                            rowCount={rows.length}
                         />
                         <TableBody>
                             {/* if you don't need to support IE11, you can replace the `stableSort` call with:
@@ -943,8 +946,8 @@ export const PremisesList: React.FC<Props> = ({ buildingId, premises }) => {
                                             <StyledTableCell>{row.shadedBays}</StyledTableCell>
                                             <StyledTableCell>{row.shadedRate}</StyledTableCell> */}
                                             <StyledTableCell>{+row.parkingRatio.toFixed(1)}</StyledTableCell>
-                                            <StyledTableCell style={{paddingTop: "16px", paddingRight: "16px"}}>{row.vacant ? <CheckCircleOutlinedIcon color="primary"/> : <CancelOutlinedIcon color="error"/>}</StyledTableCell>
-                                            <StyledTableCell style={{paddingRight: "0px"}}>
+                                            <StyledTableCell style={{ paddingTop: "16px", paddingRight: "16px" }}>{row.vacant ? <CheckCircleOutlinedIcon color="primary" /> : <CancelOutlinedIcon color="error" />}</StyledTableCell>
+                                            <StyledTableCell style={{ paddingRight: "0px" }}>
                                                 <IconButton onClick={(e) => handleParkingPopoverClick(e, row.id)}>
                                                     <DirectionsCarOutlinedIcon width={20} height={20} />
                                                 </IconButton>
@@ -965,7 +968,7 @@ export const PremisesList: React.FC<Props> = ({ buildingId, premises }) => {
                                                     <ParkingPopoverContents row={row} />
                                                 </Popover>
                                             </StyledTableCell>
-                                            <StyledTableCell style={{paddingRight: "16px"}}>
+                                            <StyledTableCell style={{ paddingRight: "16px" }}>
                                                 <IconButton ref={menuRef} onClick={() => handleMenuOpen(row.id)}>
                                                     <MoreVertOutlinedIcon width={20} height={20} />
                                                 </IconButton>
@@ -985,8 +988,8 @@ export const PremisesList: React.FC<Props> = ({ buildingId, premises }) => {
                                                         horizontal: 'left',
                                                     }}
                                                 >
-                                                
-                                                    <MenuItem onClick={()=>handleToggleVacant(row)} sx={{ color: 'text.secondary' }}>
+
+                                                    <MenuItem onClick={() => handleToggleVacant(row)} sx={{ color: 'text.secondary' }}>
                                                         <ListItemIcon>
                                                             <DomainDisabledOutlinedIcon width={24} height={24} />
                                                         </ListItemIcon>
@@ -1066,8 +1069,8 @@ export const PremisesList: React.FC<Props> = ({ buildingId, premises }) => {
                 label="Dense padding"
             /> */}
 
-            <AddPremisesDialog buildingId={buildingId} premises={premises}></AddPremisesDialog>
-            <EditPremisesDialog buildingId={buildingId} premises={premises} selectedPremises={selectedPremises} ></EditPremisesDialog>
+            <AddPremisesDialog buildingId={buildingId} premises={selectedBuilding.premises}></AddPremisesDialog>
+            <EditPremisesDialog buildingId={buildingId} premises={selectedBuilding.premises} selectedPremises={selectedPremises} ></EditPremisesDialog>
         </Box>
     );
 }
