@@ -231,6 +231,8 @@ export const BuildingDetails: React.FunctionComponent<Props> = ({ }) => {
 
     const selectedBuilding = useAppSelector(state => state.navigation.selectedBuilding)
 
+    console.log("builing details", selectedBuilding)
+
     const desktop = useMediaQuery('(min-width:1024px)');
 
     const cld = new Cloudinary({
@@ -426,11 +428,11 @@ export const BuildingDetails: React.FunctionComponent<Props> = ({ }) => {
                                 </StyledButtonDiv>
                             </Stack>
 
-                            <StyledDetailsContainerMap ref={mapRef} >
+                            {selectedBuilding? <StyledDetailsContainerMap ref={mapRef} >
                                 <div /* style={{ padding: "0.5rem" }} */>
                                     <DynamicMap id={selectedBuilding.id} latMap={selectedBuilding.lat} lngMap={selectedBuilding.lng} mapDivDimensions={mapDivDimensions}></DynamicMap>
                                 </div>
-                            </StyledDetailsContainerMap>
+                            </StyledDetailsContainerMap>: <></>}
                         </Stack>
                     </Stack>
                 </Stack>
