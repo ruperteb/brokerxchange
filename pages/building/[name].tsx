@@ -13,7 +13,7 @@ import { navigationSlice } from '../../redux/slices/navigationSlice';
 import { db, auth } from "../../utils/firebaseClient"
 import { signOut } from "firebase/auth";
 import { firebaseAdmin, dbAdmin } from "../../utils/firebaseAdmin"
-import { collection, query, onSnapshot, orderBy, getDocs, DocumentData, doc } from "firebase/firestore";
+import { collection, query, onSnapshot, orderBy, getDocs, DocumentData, doc, where } from "firebase/firestore";
 import { useCollectionDataSSR, useDocumentDataSSR } from '../../utils/useDataSSR';
 import { GetStaticProps, GetStaticPaths, GetServerSideProps } from 'next'
 
@@ -40,19 +40,29 @@ const Building: NextPage<Props> = ({ buildingData, premisesData }) => {
     const dispatch = useDispatch()
 
     const router = useRouter()
-    const { buildingName, id } = router.query
+    const {name} = router.query
 
-    const docRef = doc(db, "buildings", id as string);
 
-    const [buildingDataFirebase, loadingBuildings, errorBuildings] = useDocumentDataSSR(docRef, { idField: "id", startWith: buildingData });
+    /* const docRef = doc(db, "buildings", id as string); */
 
-    const qPremises = query(collection(db, "buildings/" + id + "/premises"), orderBy("name_lowerCase", "asc"));
+    const buildingsRef = collection(db, "buildings");
+
+    // Create a query against the collection.
+    const qBuildings = query(buildingsRef, where("name", "==", decodeURIComponent(name as string)));
+
+
+    const [buildingDataFirebase, loadingBuildings, errorBuildings] = useCollectionDataSSR(qBuildings, { idField: "id", startWith: buildingData });
+
+console.log(buildingDataFirebase[0].id)
+
+    const qPremises = query(collection(db, "buildings/" + buildingDataFirebase[0].id + "/premises"), orderBy("name_lowerCase", "asc"));
 
     const [premisesDataFirebase, loadingPremises, errorPremises] = useCollectionDataSSR(qPremises, { idField: "id", startWith: premisesData });
+    console.log(premisesDataFirebase)
 
     React.useEffect(() => {
-        dispatch(navigationSlice.actions.setSelectedBuilding({...buildingDataFirebase, premises: premisesDataFirebase }))
-    }, [buildingDataFirebase, premisesDataFirebase ])
+        dispatch(navigationSlice.actions.setSelectedBuilding({ ...buildingDataFirebase[0], premises: premisesDataFirebase }))
+    }, [buildingDataFirebase, premisesDataFirebase])
 
 
     return (
@@ -67,9 +77,9 @@ const Building: NextPage<Props> = ({ buildingData, premisesData }) => {
             </Script>
             <BuildingHeader></BuildingHeader>
             <StyledContainer maxWidth="xl">
-                {loadingBuildings || loadingPremises ? 
-                <div>Loading</div> :
-                <BuildingDetails></BuildingDetails>}
+                {loadingBuildings || loadingPremises ?
+                    <div>Loading</div> :
+                    <BuildingDetails></BuildingDetails>}
 
 
             </StyledContainer>
@@ -86,7 +96,7 @@ export async function getStaticPaths() {
     const snapshotBuildings = await dbAdmin.collection("buildings").orderBy("name_lowerCase", "asc").get()
 
     const paths = snapshotBuildings.docs.map((doc) => ({
-        params: { id: doc.id },
+        params: { name: doc.data().name },
     }))
 
     return { paths, fallback: "blocking" }
@@ -95,11 +105,28 @@ export async function getStaticPaths() {
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
 
-    const snapshotBuilding = await dbAdmin.collection("buildings").doc(params?.id as string).get()
+    console.log("getStatic", params?.id)
+    console.log("getStatic2", params?.id as string)
 
-    let building = snapshotBuilding.data()
 
-    const snapshotPremises = await dbAdmin.collection("buildings/" + params?.id + "/premises").orderBy("name_lowerCase", "asc").get()
+
+    /* const qBuildings = query(collection(db, "buildings"), where("name", "==", params?.name)); */
+
+    /* const snapshotBuilding = await dbAdmin.collection("buildings").doc(params?.name as string).get() */
+
+    const snapshotBuilding = await dbAdmin.collection("buildings").where("name", "==", decodeURIComponent(params?.name as string)).limit(1).get()
+
+
+    const building = snapshotBuilding.docs.map(doc => {
+        let docData = doc
+        return { ...docData.data(), id: doc.id }
+    })
+
+    console.log(building)
+
+    /* let building = snapshotBuilding.data() */
+
+    const snapshotPremises = await dbAdmin.collection("buildings/" + building[0].id + "/premises").orderBy("name_lowerCase", "asc").get()
 
     const premises = snapshotPremises.docs.map(doc => {
         let docData = doc

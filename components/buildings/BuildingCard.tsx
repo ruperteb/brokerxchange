@@ -273,7 +273,7 @@ export const BuildingCard: React.FC<Props> = ({ buildingData, /* scrollRef */ })
     BuildingCard.displayName = "BuildingCard";
     const scrollRef = React.useRef<HTMLDivElement>(null)
 
-   /*  console.log(scrollRef.current?.offsetTop) */
+    /*  console.log(scrollRef.current?.offsetTop) */
 
 
 
@@ -282,10 +282,10 @@ export const BuildingCard: React.FC<Props> = ({ buildingData, /* scrollRef */ })
     const selectedBuilding = useAppSelector(state => state.navigation.selectedBuilding)
     const selectedBuildings = useAppSelector(state => state.navigation.selectedBuildings)
 
-    
 
 
-   
+
+
 
 
     const router = useRouter()
@@ -382,11 +382,13 @@ export const BuildingCard: React.FC<Props> = ({ buildingData, /* scrollRef */ })
             <BuildingContentsDiv>
                 <BuildingTitleDiv>
                     <Link
-                        passHref
-                        href={{
-                            pathname: '/building/[id]',
-                            query: { id: buildingData.id, name: buildingData.name },
-                        }}>
+                        /*  passHref
+                         href={{
+                             pathname: '/building/[id]',
+                             query: { id: buildingData.id, name: buildingData.name },
+                         }} */
+                        href={`/building/${encodeURIComponent(buildingData.name)}`}
+                    >
 
                         <BuildingTitle>{buildingData.name}</BuildingTitle>
 
@@ -456,7 +458,9 @@ export const BuildingCard: React.FC<Props> = ({ buildingData, /* scrollRef */ })
                             <StyledCheckbox
                                 checked={getCheckStatus()}
                                 onChange={handleCheckbox} hover={hover}></StyledCheckbox>
-                            <StyledArrowCircle onClick={handleClick}></StyledArrowCircle>
+                            <Link href={`/building/${encodeURIComponent(buildingData.name)}`}>
+                                <StyledArrowCircle /* onClick={handleClick} */></StyledArrowCircle>
+                            </Link>
                         </BuildingDetailsCell>
                         <BuildingDetailsCell style={{ position: "relative" }}>
                             <Image

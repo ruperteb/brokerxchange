@@ -43,6 +43,7 @@ display:flex;
 margin-top: 0px !important;
 margin: auto;
 width: 600px;
+height: 480px;
 `
 
 const StyledOverlayDiv = styled.div`
