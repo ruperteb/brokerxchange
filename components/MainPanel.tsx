@@ -20,7 +20,10 @@ import { transientOptions } from "../utils/transientOptions"
 import BuildingsList from "./buildings/BuildingsList"
 import SavedLists from "./savedlists/SavedLists"
 import Landing from "./Landing"
+
 import ViewSavedListDialog from "./savedlists/ViewSavedListDialog"
+
+import { useAuth } from '../utils/authProvider'
 
 const StyledContainer = styled(Container)`
 margin-top: 160px;
@@ -43,6 +46,8 @@ interface Props {
 }
 
 export const BuildingsPanel: React.FC<Props> = ({ }) => {
+
+    const user = useAuth()
 
     const dispatch = useAppDispatch()
 
@@ -69,7 +74,7 @@ export const BuildingsPanel: React.FC<Props> = ({ }) => {
                 return <Landing />
         }
     }
- 
+
 
     return (
         <StyledContainer maxWidth="xl" >
@@ -99,7 +104,7 @@ export const BuildingsPanel: React.FC<Props> = ({ }) => {
 
             <AddBuildingDialog></AddBuildingDialog>
             <ViewSelectedBuildingsDialog></ViewSelectedBuildingsDialog>
-            <ViewSavedListDialog></ViewSavedListDialog>
+            {user?.uid ? <ViewSavedListDialog></ViewSavedListDialog> : <></>}
             <MenuDrawer></MenuDrawer>
 
         </StyledContainer>
