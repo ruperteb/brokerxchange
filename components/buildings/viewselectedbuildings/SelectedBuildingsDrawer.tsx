@@ -94,7 +94,7 @@ const SelectedBuildingsDrawer: React.FC<Props> = ({ }) => {
 
     const handleView = () => {
         dispatch(navigationSlice.actions.setModalAdjustment(true))
-        dispatch(navigationSlice.actions.setViewSelectedBuildingssDialogOpen(true))
+        dispatch(navigationSlice.actions.setViewSelectedBuildingsDialogOpen(true))
     }
 
     const modalAdjustment = useAppSelector(state => state.navigation.modalAdjustment)
