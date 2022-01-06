@@ -17,6 +17,7 @@ export const useHeaderVisible = (): boolean => {
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
+  
 
   return visible;
 };

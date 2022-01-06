@@ -19,38 +19,28 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useAppDispatch, useAppSelector } from "../../redux/hooks"
 
 import { useAuth } from '../../utils/authProvider'
-import {navigationSlice} from "../../redux/slices/navigationSlice";
+import { navigationSlice } from "../../redux/slices/navigationSlice";
+
+import { transientOptions } from "../../utils/transientOptions"
 
 
-interface MediaProps {
-    desktop: boolean
-}
 
-interface NavContainerProps {
-    visible: boolean
-}
 
-interface StyledStackProps {
-    visible: boolean
-}
+const NavContainer = styled.div`
 
-const NavContainer = styled.div<NavContainerProps>`
-/* position: fixed; */
 display:flex;
 width: 100%;
-/* transform: translate(-50%, 0); */
+
 transition-duration: .3s;
 transition-property: top;
 transition-timing-function: cubic-bezier(.4,0,.2,1);
 z-index: 100;
-/* top: ${props => props.visible === true ? "80px" : "20px"}; */
-/* box-shadow: 0px 10px 10px -15px #111; */
 padding-bottom: 1rem;
 
 background-color: white;
 `
 
-const StyledStack = styled(Stack) <StyledStackProps>`
+const StyledStack = styled(Stack)`
 margin: auto;
 `
 
@@ -66,38 +56,36 @@ interface Props {
 
 export const Navigation: React.FunctionComponent<Props> = ({ }) => {
 
-    const user = useAuth()
 
-    const [userClaims, setUserClaims] = React.useState()
+    const userAuth = useAppSelector(state => state.auth.auth)
 
-    user?.getIdTokenResult().then((idTokenResult) => {
-        setUserClaims(idTokenResult.claims.admin)
-      })
-
-    const visible = useHeaderVisible()
 
     const dispatch = useAppDispatch()
-    const buildingsData = useAppSelector((state) => state.navigation.buildingsData)  
+    const buildingsData = useAppSelector((state) => state.navigation.buildingsData)
 
     const desktop = useMediaQuery('(min-width:1024px)');
 
     const [value, setValue] = React.useState<string | null>(null);
     const [inputValue, setInputValue] = React.useState('');
 
+    React.useEffect(() => {
+        dispatch(navigationSlice.actions.setBuildingsSearch(inputValue))
+    }, [inputValue])
+
     const handleAddBuildingButton = () => {
-        
-            dispatch(navigationSlice.actions.setAddBuildingDialog(true))
-            dispatch(navigationSlice.actions.setModalAdjustment(true))
-        
+
+        dispatch(navigationSlice.actions.setAddBuildingDialog(true))
+        dispatch(navigationSlice.actions.setModalAdjustment(true))
+
     }
 
 
 
     return (
 
-        <NavContainer visible={visible}>
+        <NavContainer>
             <StyledStack
-                visible={visible}
+
                 direction="row"
                 /* justifyContent="space-evenly" */
                 alignItems="center"
@@ -121,9 +109,9 @@ export const Navigation: React.FunctionComponent<Props> = ({ }) => {
                     renderInput={(params) => <TextField {...params} label="Search" />}
                 />
 
-                <StyledButton variant="outlined" startIcon={<FilterAltOutlinedIcon/>}>Filter </StyledButton>
+                <StyledButton variant="outlined" startIcon={<FilterAltOutlinedIcon />}>Filter </StyledButton>
 
-                {userClaims?<StyledButton variant="outlined" startIcon={<AddIcon />} onClick={handleAddBuildingButton}>Add</StyledButton>: <></>}
+                {userAuth.role === "admin" ? <StyledButton variant="outlined" startIcon={<AddIcon />} onClick={handleAddBuildingButton}>Add</StyledButton> : <></>}
 
             </StyledStack>
         </NavContainer>

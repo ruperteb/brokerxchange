@@ -1,49 +1,45 @@
 import React from "react"
 
-import { useRouter } from 'next/router'
-
 import styled from '@emotion/styled';
 
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Container from "@mui/material/Container"
+import { useHeaderVisible } from "../utils/useHeaderVisible";
 
 import Logo from "../assets/Logo.png"
 
+import Navigation from "../components/buildings/Navigation"
+
 import useMediaQuery from '@mui/material/useMediaQuery';
 
-import { useAppDispatch, useAppSelector } from "../../redux/hooks"
-import { navigationSlice } from "../../redux/slices/navigationSlice";
+import { useAppDispatch, useAppSelector } from "./../redux/hooks"
+import { navigationSlice } from "./../redux/slices/navigationSlice";
 
-import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
-import IconButton from '@mui/material/IconButton';
-
-import {transientOptions} from "../../utils/transientOptions"
+import UserAuth from "../components/userAuth/UserAuth"
+import { transientOptions } from "../utils/transientOptions";
 
 
-interface VisibilityProps {
-   /*  $visible?: boolean, */
-    $modalAdjustment?: boolean
-}
 
 interface MediaProps {
     $desktop: boolean
 }
 
 
-const StyledStack = styled(Stack, transientOptions) <VisibilityProps>`
-position: fixed;
+const StyledStack = styled(Stack)`
+
 transition-duration: .3s;
 transition-property: top;
 transition-timing-function: cubic-bezier(.4,0,.2,1);
+/* background-color: #6e717a73; */
 z-index: 100;
 width: 100%;
-top: 0px;
+
 background-color: white;
 display: flex;
 flex-direction: column;
 box-shadow: 0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%);
-padding-right: ${props => props.$modalAdjustment === true ? "17px" : 0};
+
 
 `
 
@@ -52,7 +48,6 @@ position: relative;
 transition-duration: .3s;
 transition-property: top;
 transition-timing-function: cubic-bezier(.4,0,.2,1);
-top: 0px;
 display: flex;
 flex-direction: row;
 padding: 0.75rem;
@@ -87,14 +82,6 @@ font-size: 2.5rem;
 }
 `
 
-const StyledBackButton = styled(IconButton)`
-position: absolute;
-left:4rem;
-color: #1b14a5;
-`
-const StyledBackIcon = styled(ArrowBackOutlinedIcon)`
-font-size: 2rem;
-`
 
 interface Props {
 
@@ -102,34 +89,23 @@ interface Props {
 
 export const Header: React.FunctionComponent<Props> = ({ }) => {
 
-    const router = useRouter()
-    
-    const modalAdjustment = useAppSelector(state => state.navigation.modalAdjustment)
-
-    /* const visible = useHeaderVisible() */
     const desktop = useMediaQuery('(min-width:1024px)');
 
     const scrollTop = () => {
         window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
     }
 
-    
-
     return (
 
         <StyledStack
-            /* visible={visible} */
-            $modalAdjustment={modalAdjustment}
+           
             direction="row"
             justifyContent="space-evenly"
             alignItems="center"
             spacing={2}
         >
-            <StyledBackButton onClick={() => router.back()}>
-                <StyledBackIcon/>
-            </StyledBackButton>
 
-            <LogoDiv /* visible={visible} */>
+            <LogoDiv >
                 {/* <StyledImg onClick={scrollTop} src={Logo}></StyledImg> */}
                 <StyledLogoText1 onClick={scrollTop} $desktop={desktop} style={{}} variant="h4" >
                     broker
@@ -142,6 +118,7 @@ export const Header: React.FunctionComponent<Props> = ({ }) => {
                 </StyledLogoText1>
 
             </LogoDiv>
+
 
         </StyledStack>
 

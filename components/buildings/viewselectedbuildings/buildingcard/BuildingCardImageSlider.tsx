@@ -12,12 +12,13 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import IconButton from '@mui/material/IconButton';
+import Checkbox from '@mui/material/Checkbox';
 
 
 import useMediaQuery from '@mui/material/useMediaQuery';
 
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks"
-import { navigationSlice } from "../../../redux/slices/navigationSlice";
+import { useAppDispatch, useAppSelector } from "../../../../redux/hooks"
+import { navigationSlice } from "../../../../redux/slices/navigationSlice";
 
 import ImageGallery from 'react-image-gallery';
 import "react-image-gallery/styles/css/image-gallery.css";
@@ -30,7 +31,7 @@ import { format, quality } from "@cloudinary/url-gen/actions/delivery";
 import { auto } from "@cloudinary/url-gen/qualifiers/format";
 import { auto as qAuto } from "@cloudinary/url-gen/qualifiers/quality";
 
-import { db, auth } from "../../../utils/firebaseClient"
+import { db, auth } from "../../../../utils/firebaseClient"
 import { collection, query, onSnapshot, orderBy, getDocs, DocumentData, addDoc, updateDoc, doc } from "firebase/firestore";
 
 interface MediaProps {
@@ -42,8 +43,8 @@ display:flex;
 /* padding: 0.5rem; */
 margin-top: 0px !important;
 margin: auto;
-width: 600px;
-height: 480px;
+width: 400px;
+/* height: 345px; */
 `
 
 const StyledOverlayDiv = styled.div`
@@ -97,13 +98,19 @@ margin-right: 0.5rem;
 
 `
 
-
-interface Props {
-    buildingImages: string[],
-    id: string
+interface ImageListItem {
+    url: string,
+    checked: boolean,
 }
 
-export const ImageSlider: React.FunctionComponent<Props> = ({ buildingImages, id }) => {
+interface Props {
+    buildingImages: ImageListItem[],
+    id: string,
+    handleImageCheck: (buildingId: string, imageURL: string) => void,
+    handleImageOrderSelect: (buildingId: string, imagesList: ImageListItem[]) => void,
+}
+
+export const BuildingCardImageSlider: React.FunctionComponent<Props> = ({ buildingImages, id, handleImageCheck, handleImageOrderSelect }) => {
 
     const dispatch = useAppDispatch()
 
@@ -119,6 +126,7 @@ export const ImageSlider: React.FunctionComponent<Props> = ({ buildingImages, id
     interface Image {
         original: string,
         thumbnail: string,
+
     }
 
     var images: Image[] | undefined = []
@@ -128,10 +136,11 @@ export const ImageSlider: React.FunctionComponent<Props> = ({ buildingImages, id
         images = buildingImages.map((image) => {
 
             return {
-                original: cld.image(image).resize(fill().width(1200).height(800)).delivery(format(auto()))
+                original: cld.image(image.url).resize(fill().width(1200).height(800)).delivery(format(auto()))
                     .delivery(quality(qAuto())).toURL(),
-                thumbnail: cld.image(image).resize(fill().width(300).height(200)).delivery(format(auto()))
+                thumbnail: cld.image(image.url).resize(fill().width(300).height(200)).delivery(format(auto()))
                     .delivery(quality(qAuto())).toURL(),
+
 
             }
         })
@@ -142,6 +151,7 @@ export const ImageSlider: React.FunctionComponent<Props> = ({ buildingImages, id
                 .delivery(quality(qAuto())).toURL(),
             thumbnail: cld.image("/brokerxchange/General Media/LogoImage_e2wt2b.png").resize(fill().width(300).height(200)).delivery(format(auto()))
                 .delivery(quality(qAuto())).toURL(),
+
         }]
     }
 
@@ -159,20 +169,11 @@ export const ImageSlider: React.FunctionComponent<Props> = ({ buildingImages, id
         setAnchorElMenu(null);
     };
 
-    const [anchorElPopover, setAnchorElPopover] = React.useState<HTMLButtonElement | null>(null);
 
-    const handleClickPopover = (event: React.MouseEvent<HTMLButtonElement>) => {
-        dispatch(navigationSlice.actions.setModalAdjustment(true))
-        setAnchorElPopover(event.currentTarget);
-    };
 
-    const handleClosePopover = () => {
-        dispatch(navigationSlice.actions.setModalAdjustment(false))
-        setAnchorElPopover(null);
-    };
 
-    const openPopover = Boolean(anchorElPopover);
-    const PopoverId = openPopover ? 'simple-popover' : undefined;
+
+
 
     const handleMenuSelect = async (key: number) => {
 
@@ -189,46 +190,51 @@ export const ImageSlider: React.FunctionComponent<Props> = ({ buildingImages, id
 
         imagesArray = [...beforeSelectedImage!, selectedImage!, ...afterSelectedImage!]
 
-        const docRef = doc(db, "buildings", id);
+        handleImageOrderSelect(id, imagesArray)
 
-        await updateDoc(docRef, {
-            images: imagesArray
-        })
+        /*  const docRef = doc(db, "buildings", id); */
+
+        /*  await updateDoc(docRef, {
+             images: imagesArray
+         }) */
     }
 
-    const handleDelete = async () => {
+    const getChecked = (key: number) => {
 
+        if (buildingImages) {
+            let imagesArray = buildingImages
+            // @ts-ignore: Unreachable code error
+            var selectedImage = imagesArray?.[key]
+            if (selectedImage) {
+                return selectedImage.checked
+            } else return false
+
+        } else return false
+
+
+    }
+
+    const handleCheck = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
         let imagesArray = buildingImages
-
         // @ts-ignore: Unreachable code error
         var selectedImage = imagesArray?.[galleryRef.current?.getCurrentIndex()]
 
-        var rest = imagesArray?.filter(image => {
-            return image !== selectedImage
-        })
-        imagesArray = rest
-
-        const docRef = doc(db, "buildings", id);
-
-        await updateDoc(docRef, {
-            images: imagesArray
-        })
-
-        await handleClosePopover()
+        handleImageCheck(id, selectedImage.url)
     }
+
 
     const galleryOverlay = () => {
 
         return (
             <StyledOverlayDiv>
-                <StyledImageNumberText>
+                {buildingImages ? <StyledImageNumberText>
                     Image {
                         // @ts-ignore: Unreachable code error
                         galleryRef.current?.getCurrentIndex() !== undefined ?
                             // @ts-ignore: Unreachable code error
                             galleryRef.current?.getCurrentIndex() + 1 : "loading"}
-                </StyledImageNumberText>
-                <StyledImageSelectButton
+                </StyledImageNumberText>: <StyledImageNumberText>Placeholder</StyledImageNumberText> }
+                {buildingImages ? <StyledImageSelectButton
                     id="basic-button"
                     aria-controls="basic-menu"
                     aria-haspopup="true"
@@ -236,10 +242,14 @@ export const ImageSlider: React.FunctionComponent<Props> = ({ buildingImages, id
                     onClick={handleClickMenu}
                 >
                     Set Image
-                </StyledImageSelectButton>
-                <StyledImageDeleteButton onClick={handleClickPopover} color="primary" aria-label="save" >
-                    <DeleteOutlinedIcon />
-                </StyledImageDeleteButton>
+                </StyledImageSelectButton> : <></>}
+                {buildingImages ? <Checkbox
+                    // @ts-ignore
+                    checked={getChecked(galleryRef.current?.getCurrentIndex())}
+                    onChange={handleCheck}
+                    inputProps={{ 'aria-label': 'controlled' }}
+                /> : <></>}
+
                 <Menu
                     id="basic-menu"
                     anchorEl={anchorElMenu}
@@ -253,27 +263,7 @@ export const ImageSlider: React.FunctionComponent<Props> = ({ buildingImages, id
                     <MenuItem onClick={() => handleCloseMenu(2)}>Secondary</MenuItem>
                     <MenuItem onClick={() => handleCloseMenu(3)}>Tertiary</MenuItem>
                 </Menu>
-                <Popover
-                    id={PopoverId}
-                    open={openPopover}
-                    anchorEl={anchorElPopover}
-                    onClose={handleClosePopover}
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'right',
-                    }}
-                    transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'right',
-                    }}
-                >
-                    <StyledPopoverDiv >
-                        <Typography sx={{ p: 2 }}>Are you sure you want to delete this image?</Typography>
-                        <StyledPopoverConfirmButton onClick={handleDelete}>Confirm</StyledPopoverConfirmButton>
-                        <StyledPopoverCancelButton onClick={handleClosePopover}>Cancel</StyledPopoverCancelButton>
-                    </StyledPopoverDiv>
 
-                </Popover>
             </StyledOverlayDiv>
         )
     }
@@ -285,7 +275,7 @@ export const ImageSlider: React.FunctionComponent<Props> = ({ buildingImages, id
     return (
 
         <StyledGalleryCard>
-            <ImageGallery ref={galleryRef} useBrowserFullscreen={false} showPlayButton={false} items={images!} renderCustomControls={galleryOverlay} />
+            <ImageGallery showBullets showThumbnails={false} ref={galleryRef} useBrowserFullscreen={false} showPlayButton={false} items={images!} renderCustomControls={galleryOverlay} />
 
         </StyledGalleryCard>
 
@@ -294,4 +284,4 @@ export const ImageSlider: React.FunctionComponent<Props> = ({ buildingImages, id
 
 }
 
-export default ImageSlider
+export default BuildingCardImageSlider

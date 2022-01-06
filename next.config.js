@@ -3,7 +3,7 @@
 module.exports = {
   reactStrictMode: true,
   images: {
-    domains: ['res.cloudinary.com'],
+    domains: ['res.cloudinary.com', 'api.mapbox.com'],
   },
   externals: [ 'aws-sdk', 'commonjs2 firebase-admin', "fast-crc32c", "retry-request" ],
   webpack: (config, { isServer }) => {

@@ -11,35 +11,64 @@ interface CheckProps {
 
 export interface NavigationState {
 
+    panelView: string,
+
+    buildingsSearch: string,
+    menuDrawerOpen: boolean,
+
     selectedBuilding: DocumentData,
     selectedBuildings: DocumentData[]
+    selectedBuildingsDrawerOpen: boolean,
+    viewSelectedBuildingsDialogOpen: boolean,
+
+    viewSavedListDialogOpen: boolean,
+    selectedList: DocumentData,
 
     buildingsData: DocumentData[],
     landlordsData: DocumentData[],
+    savedListsData: DocumentData[],
 
     modalAdjustment: boolean,
+
     addBuildingDialogOpen: boolean,
     editBuildingDialogOpen: boolean,
 
+
     addPremisesDialogOpen: boolean,
     editPremisesDialogOpen: boolean,
+
+    headerVisible: boolean,
 
 }
 
 const initialState: NavigationState = {
 
+    panelView: "landing",
+
+    buildingsSearch: "",
+    menuDrawerOpen: false,
+
     selectedBuilding: {},
     selectedBuildings: [],
+    selectedBuildingsDrawerOpen: false,
+    viewSelectedBuildingsDialogOpen: false,
+
+    viewSavedListDialogOpen: false,
+    selectedList: [],
 
     buildingsData: [],
     landlordsData: [],
+    savedListsData: [],
 
     modalAdjustment: false,
+
     addBuildingDialogOpen: false,
     editBuildingDialogOpen: false,
 
     addPremisesDialogOpen: false,
     editPremisesDialogOpen: false,
+
+    headerVisible: false,
 
 };
 
@@ -54,11 +83,38 @@ export const navigationSlice = createSlice({
     initialState,
     // The `reducers` field lets us define reducers and generate associated actions
     reducers: {
+        setPanelView: (state, action: PayloadAction<string>) => {
+            state.panelView = action.payload;
+        },
+        setBuildingsSearch: (state, action: PayloadAction<string>) => {
+            state.buildingsSearch = action.payload;
+        },
+        setMenuDrawerOpen: (state, action: PayloadAction<boolean>) => {
+            state.menuDrawerOpen = action.payload;
+        },
         setSelectedBuilding: (state, action: PayloadAction<DocumentData>) => {
             state.selectedBuilding = action.payload;
         },
+        setSelectedBuildingsDrawerOpen: (state, action: PayloadAction<boolean>) => {
+            state.selectedBuildingsDrawerOpen = action.payload;
+        },
+        setViewSelectedBuildingsDialogOpen: (state, action: PayloadAction<boolean>) => {
+            state.viewSelectedBuildingsDialogOpen = action.payload;
+        },
+        setViewSavedListDialogOpen: (state, action: PayloadAction<boolean>) => {
+            state.viewSavedListDialogOpen = action.payload;
+        },
+        setSelectedList: (state, action: PayloadAction<DocumentData>) => {
+            state.selectedList = action.payload;
+        },
         setBuildingsData: (state, action: PayloadAction<DocumentData[]>) => {
             state.buildingsData = action.payload;
+        },
+        setLandlordsData: (state, action: PayloadAction<DocumentData[]>) => {
+            state.landlordsData = action.payload;
+        },
+        setSavedListsData: (state, action: PayloadAction<DocumentData[]>) => {
+            state.savedListsData = action.payload;
         },
         addSelectedBuilding: (state, action: PayloadAction<DocumentData>) => {
             state.selectedBuildings.push(action.payload)
@@ -68,8 +124,8 @@ export const navigationSlice = createSlice({
             // "Mutate" the existing state to save the new array
             state.selectedBuildings = temp
         },
-        setLandlordsData: (state, action: PayloadAction<DocumentData[]>) => {
-            state.landlordsData = action.payload;
+        clearSelectedBuildings: (state, /* action: PayloadAction<DocumentData> */) => {
+            state.selectedBuildings = []
         },
         setModalAdjustment: (state, action: PayloadAction<boolean>) => {
             state.modalAdjustment = action.payload;
@@ -85,6 +141,9 @@ export const navigationSlice = createSlice({
         },
         setEditPremisesDialog: (state, action: PayloadAction<boolean>) => {
             state.editPremisesDialogOpen = action.payload;
+        },
+        setHeaderVisible: (state, action: PayloadAction<boolean>) => {
+            state.headerVisible = action.payload;
         },
 
 
@@ -104,15 +163,24 @@ export const navigationSlice = createSlice({
 });
 
 export const {
+    setPanelView,
+    setBuildingsSearch,
+    setMenuDrawerOpen,
     setSelectedBuilding,
+    setSelectedBuildingsDrawerOpen,
+    setViewSelectedBuildingsDialogOpen,
     setBuildingsData,
-    addSelectedBuilding,
     setLandlordsData,
+    setSavedListsData,
+    setViewSavedListDialogOpen,
+    setSelectedList,
+    addSelectedBuilding,
     setModalAdjustment,
     setAddBuildingDialog,
     setEditBuildingDialog,
     setAddPremisesDialog,
     setEditPremisesDialog,
+    setHeaderVisible,
 } = navigationSlice.actions;
 
 // The function below is called a selector and allows us to select a value from

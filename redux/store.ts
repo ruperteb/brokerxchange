@@ -14,6 +14,7 @@ import storage from 'redux-persist/lib/storage'
 import { PersistGate } from 'redux-persist/integration/react'
 
 import navigationReducer from '../redux/slices/navigationSlice';
+import authReducer from '../redux/slices/authSlice';
 
 const persistConfig = {
   key: 'root',
@@ -25,6 +26,7 @@ const persistConfig = {
 
 const reducers = combineReducers({
   navigation: navigationReducer,
+  auth: authReducer,
   
 });
 

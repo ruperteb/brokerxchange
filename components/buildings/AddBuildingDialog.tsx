@@ -16,8 +16,11 @@ import Select from 'react-select'
 import CreatableSelect from 'react-select/creatable';
 
 import { db, auth } from "../../utils/firebaseClient"
-import { collection, query, onSnapshot, orderBy, getDocs, DocumentData, addDoc } from "firebase/firestore";
+import { collection, query, onSnapshot, orderBy, getDocs, DocumentData, addDoc, setDoc, doc, getDoc } from "firebase/firestore";
 /* import { stringify } from 'querystring'; */
+
+import { transientOptions } from "../../utils/transientOptions"
+import { useRouter } from 'next/router';
 
 
 const StyledBuildingDetails = styled.div`
@@ -32,6 +35,7 @@ const StyledInput = styled(TextField)`
     width: 50%;
     padding-right: 0.5rem;
     margin: auto;
+    margin-top: 0.5rem;
 /* margin-left: 0.5rem; */
 }
 
@@ -52,40 +56,51 @@ const StyledBuildingAddress = styled(StyledInput)`
 }
 `
 
-const StyledTypeSelect = styled(Select)`
-width: 30%;
-margin: auto;
+interface SelectProps {
+    $error: boolean
+}
+
+const StyledSelect = styled(Select, transientOptions) <SelectProps>`
+
 padding: 0.5rem;
 padding-right: 0px;
-/* height: 40px; */
-`
-
-const StyledSuburbSelect = styled(CreatableSelect)`
-width: 50%;
-margin: auto;
-padding: 0.5rem;
 padding-left: 0px;
+& .react-select__control {
+    border-color: ${props => props.$error ? "red" : "#cccccc"};
+}
+
+& .react-select__control:hover {
+    border-color: ${props => props.$error ? "red" : "#585858"};
+}
+
+&&& .react-select__control--menu-is-open {
+    border-color: ${props => props.$error ? "red" : "#556cd6"};
+    box-shadow: ${props => props.$error ? "0 0 0 1px red" : "0 0 0 1px #556cd6"};
+    
+}
+
 `
 
-const StyledProvinceSelect = styled(Select)`
+
+const StyledSelectDiv = styled.div`
+display: flex;
+flex-direction: column;
 width: 50%;
-margin: auto;
-padding: 0.5rem;
-padding-left: 0px;
 `
 
-const StyledLandlordSelect = styled(Select)`
-width: 50%;
-margin: auto;
-padding: 0.5rem;
-padding-right: 0px;
-`
-
-const StyledContactSelect = styled(Select)`
-width: 50%;
-margin: auto;
-padding: 0.5rem;
-padding-right: 0px;
+const StyledSelectHelperText = styled.div`
+font-family: "Roboto","Helvetica","Arial",sans-serif;
+    font-weight: 400;
+    font-size: 0.75rem;
+    line-height: 1.66;
+    letter-spacing: 0.03333em;
+    text-align: left;
+    margin-top: -5px;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    color: #ff1744;
+    padding-left: 1rem;
 `
 
 interface Props {
@@ -93,7 +108,8 @@ interface Props {
 }
 
 export const AddBuildingDialog: React.FC<Props> = ({ }) => {
-    /* const [open, setOpen] = React.useState(false); */
+
+    const router = useRouter()
 
     const dispatch = useAppDispatch()
     const addBuildingDialogOpen = useAppSelector((state) => state.navigation.addBuildingDialogOpen)
@@ -103,20 +119,39 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
         dispatch(navigationSlice.actions.setAddBuildingDialog(false))
     };
 
+    const clearBuildingDetails = () => {
+        setBuildingDetails({
+            name: "",
+            name_lowerCase: "",
+            address: "",
+            buildingsLogo: "",
+            contactEmail: "",
+            contactMobile: "",
+            contactName: "",
+            contactOffice: "",
+            landlord: "",
+            landlordId: "",
+            lastUpdated: "",  //Date.now().toISOString()
+            province: "",
+            suburb: "",
+            suburb_lowerCase: "",
+            type: "",
+        })
+        setBuildingDetailsError({
+            name: false,
+            nameExists: false,
+            address: false,
+            contactName: false,
+            landlord: false,
+            province: false,
+            suburb: false,
+            type: false,
+        })
+    }
+
     const landlordsData = useAppSelector((state) => state.navigation.landlordsData)
     const buildingsData = useAppSelector((state) => state.navigation.buildingsData)
 
-    /* var landlordNameData = landlordsData.map((landlord: any) => { return landlord.name }) */
-
-    /*  let combinedLandlordNameData: any = [] */
-
-    /* landlordNameData.map((landlord) => {
-        landlord.map((name:any) => {
-            combinedLandlordNameData = [...combinedLandlordNameData, name]
-        })
-    }) */
-
-    /* var distinctLandlordNames: string[] = Array.from(new Set(landlordNameData.map((name: string) => { return name }))) */
 
     var formattedLandlordNames = landlordsData.map((landlord) => {
         return { value: landlord.name, label: landlord.name, id: landlord.id, buildingsLogo: landlord.buildingsLogo }
@@ -191,7 +226,29 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
         type: "",
     })
 
-    console.log(buildingDetails)
+    interface BuildingDetailsError {
+        name: boolean,
+        nameExists: boolean,
+        address: boolean,
+        province: boolean,
+        suburb: boolean,
+        type: boolean,
+        landlord: boolean,
+        contactName: boolean,
+    }
+
+    const [buildingDetailsError, setBuildingDetailsError] = React.useState<BuildingDetailsError>({
+        name: false,
+        nameExists: false,
+        address: false,
+        contactName: false,
+        landlord: false,
+        province: false,
+        suburb: false,
+        type: false,
+    })
+
+    console.log(buildingDetails, buildingDetailsError)
 
     const customSelectStyles = {
         /* option: (provided: any, state: any) => ({
@@ -199,27 +256,27 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
             
 
         }), */
+
         control: (provided: any, state: any) => ({
 
             ...provided,
-            height: "40px"
+            height: "40px",
+
         }),
-         container: (provided: any, state: any) => ({
-             ...provided,
-             width: "auto",
-             marginTop: "1rem",
-             margin: "0.5rem",
-             height: "fit-content"
-         }),
-         menu: (provided: any, state: any) => ({
-             ...provided,
-             zIndex: 100000,
-             position: "absolute"
-         }),
-         menuPortal: (provided: any, state: any) => ({
-             ...provided,
-             zIndex: 100000,
-         }),
+        container: (provided: any, state: any) => ({
+            ...provided,
+            width: "auto",
+            height: "fit-content"
+        }),
+        menu: (provided: any, state: any) => ({
+            ...provided,
+            zIndex: 100000,
+            position: "absolute"
+        }),
+        menuPortal: (provided: any, state: any) => ({
+            ...provided,
+            zIndex: 100000,
+        }),
         menuList: (provided: any, state: any) => ({
             ...provided,
             maxHeight: "200px"
@@ -306,7 +363,7 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
                 setBuildingDetails({ ...buildingDetails, landlord: value.value })
             }
             if (actionType.action === "clear") {
-                setBuildingDetails({ ...buildingDetails, landlord: "", buildingsLogo: "" })
+                setBuildingDetails({ ...buildingDetails, landlord: "", landlordId: "", buildingsLogo: "" })
                 setLandlordContacts(undefined)
             }
         }, [buildingDetails])
@@ -323,7 +380,7 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
                 setBuildingDetails({ ...buildingDetails, contactName: "", contactEmail: "", contactMobile: "", contactOffice: "" })
             }
         }, [buildingDetails])
-  
+
 
     const handleNameChange = React.useCallback(
         (e: any) => {
@@ -336,6 +393,88 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
         }, [buildingDetails])
 
 
+    const validateBuildingDetails = async () => {
+        var name = false
+        var address = false
+        var contactName = false
+        var landlord = false
+        var province = false
+        var suburb = false
+        var type = false
+
+        if (buildingDetails.name === "") {
+            name = true;
+        } else name = false
+        if (buildingDetails.address === "") {
+            address = true;
+        } else address = false
+        if (buildingDetails.contactName === "") {
+            contactName = true;
+        } else contactName = false
+        if (buildingDetails.landlord === "") {
+            landlord = true;
+        } else landlord = false
+        if (buildingDetails.province === "") {
+            province = true;
+        } else province = false
+        if (buildingDetails.suburb === "") {
+            suburb = true;
+        } else suburb = false
+        if (buildingDetails.type === "") {
+            type = true;
+        } else type = false
+
+        return {
+            name: name,
+            address: address,
+            contactName: contactName,
+            landlord: landlord,
+            province: province,
+            suburb: suburb,
+            type: type
+        }
+    };
+
+    const checkBuildingName = async () => {
+        if (buildingDetails.name !== "") {
+            const docRef = doc(db, "buildings", buildingDetails.name!);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                return true
+            } else {
+                return false
+            }
+        } else return false
+
+    }
+
+    const checkErrors = async (errors: any, buildingExists: boolean) => {
+        setBuildingDetailsError({ ...errors, nameExists: buildingExists })
+        if (errors.name || errors.address || errors.contactName || errors.landlord || errors.province || errors.suburb || errors.type || buildingExists) {
+            return true
+        } else return false
+
+    }
+
+
+    const handleSubmit = async () => {
+
+        var buildingExists = await checkBuildingName()
+        var errors = await validateBuildingDetails()
+        var errorState = await checkErrors(errors, buildingExists)
+
+
+
+        if (!errorState) {
+            submitBuilding().then(() => {
+                router.push(`/building/${encodeURIComponent(buildingDetails.name!)}`)
+            })
+        }
+
+    }
+
+
     const submitBuilding = async () => {
 
         var search = `${buildingDetails.address}, ${buildingDetails.suburb} `
@@ -343,7 +482,8 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
         const coordinateRes = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${search}.json?country=za&access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`)
         const coordinateData: any = await coordinateRes.json()
 
-        await addDoc(collection(db, "buildings"), {
+
+        await setDoc(doc(db, "buildings", buildingDetails.name!), {
             name: buildingDetails.name,
             name_lowerCase: buildingDetails.name_lowerCase,
             address: buildingDetails.address,
@@ -361,9 +501,10 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
             type: buildingDetails.type,
             lat: coordinateData.features[0].center[1],
             lng: coordinateData.features[0].center[0]
-        })
+
+        }, { merge: true })
             .then((result) => {
-                console.log(result.id)
+                console.log(result)
                 /*  if (result.id) { */
                 /*  setSuccess(true) */
                 /*  notify() */
@@ -376,9 +517,21 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
 
 
 
+    const getNameError = (name: boolean, nameExists: boolean) => {
+        if (name) {
+            return true
+        } else if (nameExists) {
+            return true
+        } else return false
+    }
 
-
-
+    const getNameHelperText = (name: boolean, nameExists: boolean) => {
+        if (name) {
+            return "Required"
+        } else if (nameExists) {
+            return "Building already exists"
+        } else return ""
+    }
 
 
     return (
@@ -390,6 +543,7 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
                 TransitionProps={{
                     onExited: () => {
                         dispatch(navigationSlice.actions.setModalAdjustment(false))
+                        clearBuildingDetails()
                     }
                     // timeout: {
                     //   enter: 1000,
@@ -407,80 +561,109 @@ export const AddBuildingDialog: React.FC<Props> = ({ }) => {
                             label="Building Name"
                             variant="outlined"
                             onChange={handleNameChange}
-                        /* defaultValue="Hello World" */
+                            /* defaultValue="Hello World" */
+                            error={getNameError(buildingDetailsError.name, buildingDetailsError.nameExists)} helperText={getNameHelperText(buildingDetailsError.name, buildingDetailsError.nameExists)}
                         />
-                        <StyledTypeSelect
-                            key="Building Type"
-                            /* isMulti */
-                            placeholder="Building Type"
-                            styles={customSelectStyles}
-                            options={typeOptions}
-                            onChange={onSelectType}
-                            menuPortalTarget={document.body}
-                            value={buildingDetails.type !== "" ? { value: buildingDetails.type, label: buildingDetails.type } : null}
-                        />
+                        <StyledSelectDiv style={{ width: "30%", paddingLeft: "0.5rem" }}>
+                            <StyledSelect
+                                $error={buildingDetailsError.type}
+                                classNamePrefix="react-select"
+                                key="Building Type"
+                                /* isMulti */
+                                placeholder="Building Type"
+                                styles={customSelectStyles}
+                                options={typeOptions}
+                                onChange={onSelectType}
+                                menuPortalTarget={document.body}
+                                value={buildingDetails.type !== "" ? { value: buildingDetails.type, label: buildingDetails.type } : null}
+
+                            />
+                            {buildingDetailsError.type ? <StyledSelectHelperText>Required</StyledSelectHelperText> : <></>}
+                        </StyledSelectDiv>
+
                         <StyledBuildingAddress
                             size="small"
                             id="Address"
                             label="Address"
                             variant="outlined"
                             onChange={handleAddressChange}
-                        /* defaultValue="Hello World" */
+                            /* defaultValue="Hello World" */
+                            error={buildingDetailsError.address} helperText={buildingDetailsError.address ? `Required` : ``}
                         />
-                        <StyledSuburbSelect
-                            isClearable
-                            key="suburb"
-                            /* isMulti */
-                            placeholder="Suburb"
-                            styles={customSelectStyles}
-                            menuPortalTarget={document.body}
-                            options={formattedSuburbs}
-                            onChange={onSelectSuburb}
-                            value={buildingDetails.suburb !== "" ? { value: buildingDetails.suburb, label: buildingDetails.suburb } : null}
-                        />
-                        <StyledLandlordSelect
-                            key="Landlord"
-                            /* isMulti */
-                            isClearable
-                            placeholder="Landlord"
-                            styles={customSelectStyles}
-                            options={formattedLandlordNames}
-                            onChange={onSelectLandlord}
+                        <StyledSelectDiv>
+                            <StyledSelect
+                                $error={buildingDetailsError.suburb}
+                                classNamePrefix="react-select"
+                                isClearable
+                                key="suburb"
+                                /* isMulti */
+                                placeholder="Suburb"
+                                styles={customSelectStyles}
+                                menuPortalTarget={document.body}
+                                options={formattedSuburbs}
+                                onChange={onSelectSuburb}
+                                value={buildingDetails.suburb !== "" ? { value: buildingDetails.suburb, label: buildingDetails.suburb } : null}
+                            />
+                            {buildingDetailsError.suburb ? <StyledSelectHelperText>Required</StyledSelectHelperText> : <></>}
+                        </StyledSelectDiv>
+                        <StyledSelectDiv style={{ paddingLeft: "1rem" }}>
+                            <StyledSelect
+                                $error={buildingDetailsError.landlord}
+                                classNamePrefix="react-select"
+                                key="Landlord"
+                                /* isMulti */
+                                isClearable
+                                placeholder="Landlord"
+                                styles={customSelectStyles}
+                                options={formattedLandlordNames}
+                                onChange={onSelectLandlord}
 
-                            menuPortalTarget={document.body}
-                            value={buildingDetails.landlord !== "" ? { value: buildingDetails.landlord, label: buildingDetails.landlord } : null}
-                        />
-                        <StyledProvinceSelect
-                            isClearable
-                            key="province"
-                            /* isMulti */
-                            placeholder="Province"
-                            styles={customSelectStyles}
-                            menuPortalTarget={document.body}
-                            options={provinceOptions}
-                            onChange={onSelectProvince}
-                            value={buildingDetails.province !== "" ? { value: buildingDetails.province, label: buildingDetails.province } : null}
-                        />
-                        <StyledContactSelect
-                            isDisabled={landlordContacts === [] || landlordContacts === undefined ? true : false}
-                            isClearable
-                            key="contact"
-                            /* isMulti */
-                            placeholder="Contact"
-                            styles={customSelectStyles}
-                            menuPortalTarget={document.body}
-                            options={landlordContacts}
-                            onChange={onSelectContact}
-                            value={buildingDetails.contactName !== "" ? { value: buildingDetails.contactName, label: buildingDetails.contactName } : null}
-                        />
+                                menuPortalTarget={document.body}
+                                value={buildingDetails.landlord !== "" ? { value: buildingDetails.landlord, label: buildingDetails.landlord } : null}
+                            />
+                            {buildingDetailsError.landlord ? <StyledSelectHelperText>Required</StyledSelectHelperText> : <></>}
+                        </StyledSelectDiv>
+                        <StyledSelectDiv>
+                            <StyledSelect
+                                $error={buildingDetailsError.province}
+                                classNamePrefix="react-select"
+                                isClearable
+                                key="province"
+                                /* isMulti */
+                                placeholder="Province"
+                                styles={customSelectStyles}
+                                menuPortalTarget={document.body}
+                                options={provinceOptions}
+                                onChange={onSelectProvince}
+                                value={buildingDetails.province !== "" ? { value: buildingDetails.province, label: buildingDetails.province } : null}
+                            />
+                            {buildingDetailsError.province ? <StyledSelectHelperText>Required</StyledSelectHelperText> : <></>}
+                        </StyledSelectDiv>
+                        <StyledSelectDiv style={{ paddingLeft: "1rem" }}>
+                            <StyledSelect
+                                $error={buildingDetailsError.contactName}
+                                classNamePrefix="react-select"
+                                isDisabled={landlordContacts === [] || landlordContacts === undefined ? true : false}
+                                isClearable
+                                key="contact"
+                                /* isMulti */
+                                placeholder="Contact"
+                                styles={customSelectStyles}
+                                menuPortalTarget={document.body}
+                                options={landlordContacts}
+                                onChange={onSelectContact}
+                                value={buildingDetails.contactName !== "" ? { value: buildingDetails.contactName, label: buildingDetails.contactName } : null}
+                            />
+                            {buildingDetailsError.contactName ? <StyledSelectHelperText>Required</StyledSelectHelperText> : <></>}
+                        </StyledSelectDiv>
                     </StyledBuildingDetails>
 
 
 
                 </DialogContent>
-                <DialogActions style={{paddingBottom: "1rem"}}>
+                <DialogActions style={{ paddingBottom: "1rem" }}>
                     <Button onClick={handleClose}>Cancel</Button>
-                    <Button style={{paddingRight: "2rem"}} onClick={submitBuilding}>Submit</Button>
+                    <Button style={{ paddingRight: "2rem" }} onClick={handleSubmit}>Submit</Button>
                 </DialogActions>
             </Dialog>
         </div>

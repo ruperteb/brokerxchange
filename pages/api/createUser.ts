@@ -16,8 +16,8 @@ export default function handler(
     return new Promise((resolve , reject) => {
         
             firebaseAdmin.auth().setCustomUserClaims(req.body.uid, {
-                admin: true,
-                other: req.body.value
+                role: "basic",
+                /* other: req.body.value */
             })
     
         

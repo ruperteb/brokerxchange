@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
@@ -11,7 +11,7 @@ import styled from '@emotion/styled';
 import { db, auth } from "../utils/firebaseClient"
 import { signOut } from "firebase/auth";
 import { firebaseAdmin, dbAdmin } from "../utils/firebaseAdmin"
-import { collection, query, onSnapshot, orderBy, getDocs, DocumentData } from "firebase/firestore";
+import { collection, query, onSnapshot, orderBy, getDocs, DocumentData, where } from "firebase/firestore";
 import { useCollectionDataSSR } from '../utils/useDataSSR';
 import { GetStaticProps, GetStaticPaths, GetServerSideProps } from 'next'
 
@@ -23,7 +23,8 @@ import { useAuth } from '../utils/authProvider'
 
 import Header from "../components/Header"
 import Navigation from "../components/buildings/Navigation"
-import BuildingsPanel from "../components/buildings/BuildingsPanel"
+import MainPanel from "../components/MainPanel"
+import { useHeaderVisible } from '../utils/useHeaderVisible'
 
 const StyledContainer = styled(Container)`
 margin-top: 75px;
@@ -58,15 +59,74 @@ interface Props {
 
 const Home: NextPage<Props> = ({ buildings, landlords }) => {
 
-  const qBuildings = query(collection(db, "buildings"), orderBy("name_lowerCase", "asc"));
+  const user = useAuth()
+
+  const buildingsSearch = useAppSelector((state) => state.navigation.buildingsSearch)
+
+  const qBuildings = query(collection(db, "buildings"), orderBy("name_lowerCase", "asc"), where('name_lowerCase', '>=', buildingsSearch.toLocaleLowerCase()), where('name_lowerCase', '<=', buildingsSearch.toLocaleLowerCase() + '~'));
 
   const qLandlords = query(collection(db, "landlords"), orderBy("name_lowerCase", "asc"));
 
-  const [buildingsDataFirebase, loadingBuildings, errorBuildings] = useCollectionDataSSR(qBuildings, {idField: "id", startWith: buildings });
+  const [buildingsDataFirebase, loadingBuildings, errorBuildings] = useCollectionDataSSR(qBuildings, { idField: "id", startWith: buildings });
 
-  const [landlordsDataFirebase, loadingLandlords, errorLandlords] = useCollectionDataSSR(qLandlords, {idField: "id", startWith: landlords });
+  const [landlordsDataFirebase, loadingLandlords, errorLandlords] = useCollectionDataSSR(qLandlords, { idField: "id", startWith: landlords });
 
   const dispatch = useAppDispatch()
+
+  useEffect(() => {
+    if (auth.currentUser?.uid) {
+      dispatch(navigationSlice.actions.setPanelView("buildings"))
+    } else {
+      dispatch(navigationSlice.actions.setPanelView("landing"))
+    }
+
+  }, [auth.currentUser])
+
+
+  React.useEffect(() => {
+
+    /* if (auth.currentUser) { */
+
+    const qUserLists = query(collection(db, "users/" + auth.currentUser?.uid + "/lists"), orderBy("title", "asc"));
+
+    var unsubscribe = onSnapshot(qUserLists, (userListsSnapshot) => {
+      var dataUserLists = userListsSnapshot.docs.map((doc) => {
+        var docData = doc
+        return { ...docData.data(), id: docData.id }
+
+      })
+      dispatch(navigationSlice.actions.setSavedListsData(dataUserLists))
+    })
+    unsubscribe()
+    /*  } */
+
+  }, [auth.currentUser])
+
+
+
+
+
+
+  /* useEffect(() => {
+    if (auth.currentUser?.uid) {
+
+      const getUserListData = async () => {
+        const qUserLists = query(collection(db, "users/" + auth.currentUser?.uid + "/lists"), orderBy("title", "asc"));
+        const userListsSnapshot = await getDocs(qUserLists);
+        var dataUserLists = userListsSnapshot.docs.map((doc) => {
+          var docData = doc
+          return { ...docData.data(), id: docData.id }
+
+        })
+        return dataUserLists
+      }
+
+      getUserListData().then((result) => {
+        dispatch(navigationSlice.actions.setSavedListsData(result))
+      })
+    }
+
+  }, [auth.currentUser]) */
 
   useEffect(() => {
     dispatch(navigationSlice.actions.setBuildingsData(buildingsDataFirebase))
@@ -78,13 +138,14 @@ const Home: NextPage<Props> = ({ buildings, landlords }) => {
 
 
 
+  console.log(buildingsSearch)
   const buildingsData = useAppSelector((state) => state.navigation.buildingsData)
 
   const landlordsData = useAppSelector((state) => state.navigation.landlordsData)
 
   console.log(landlordsData)
 
-  const user = useAuth()
+
 
   const handleSignOut = () => {
     signOut(auth).then(() => {
@@ -119,14 +180,16 @@ const Home: NextPage<Props> = ({ buildings, landlords }) => {
     await console.log(data)
   }
 
+ 
 
+  
 
   return (
-    <div style={{height: "150vh"}}>
+    <div >
       <Header></Header>
-      <BuildingsPanel></BuildingsPanel>
+      <MainPanel></MainPanel>
 
-      <StyledContainer maxWidth="xl">
+      {/* <StyledContainer maxWidth="xl">
 
        
 
@@ -143,8 +206,8 @@ const Home: NextPage<Props> = ({ buildings, landlords }) => {
           onChange={handleTextChange}
         />
         <Button onClick={callApi}>API</Button>
-        {/* <StyledBox></StyledBox> */}
-      </StyledContainer>
+        
+      </StyledContainer> */}
     </div>
   );
 }

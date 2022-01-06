@@ -31,6 +31,8 @@ import { constants } from "buffer";
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { navigationSlice } from '../../redux/slices/navigationSlice';
 
+import { transientOptions } from "../../utils/transientOptions"
+
 const StyledPaper = styled(Paper)`
 height: 200px;
 width: 900px;
@@ -187,18 +189,18 @@ display: flex;
 `
 
 interface HoverProps {
-    hover: boolean;
-    checked: boolean | undefined;
+    $hover: boolean;
+    $checked: boolean | undefined;
 }
 
-const StyledCheckbox = styled(Checkbox) <HoverProps>`
+const StyledCheckbox = styled(Checkbox, transientOptions) <HoverProps>`
 margin: auto;
 margin-right: 0px;
 & .MuiSvgIcon-root { 
     font-size: 30px;
     color: #e9130e;
     }
-    visibility: ${props => props.hover || props.checked ? "visible" : "hidden"};
+    visibility: ${props => props.$hover || props.$checked ? "visible" : "hidden"};
    
 `
 
@@ -262,6 +264,10 @@ margin: auto;
 fill: #1b14a5;
 `
 
+const StyledImage = styled(Image)`
+padding-right: 0.5rem !important;
+`
+
 
 interface Props {
     buildingData: DocumentData,
@@ -281,6 +287,10 @@ export const BuildingCard: React.FC<Props> = ({ buildingData, /* scrollRef */ })
     const dispatch = useAppDispatch()
     const selectedBuilding = useAppSelector(state => state.navigation.selectedBuilding)
     const selectedBuildings = useAppSelector(state => state.navigation.selectedBuildings)
+
+    console.log(selectedBuildings)
+
+    console.log(buildingData)
 
 
 
@@ -338,12 +348,12 @@ export const BuildingCard: React.FC<Props> = ({ buildingData, /* scrollRef */ })
         cardImage = cld.image(images![0]).resize(fill().width(600).height(400)).delivery(format(auto()))
             .delivery(quality(qAuto())).toURL()
     } else {
-        cardImage = cld.image("/brokerxchange/Sunclare Building/Sunclare-Building-Claremont-5_ipnlpp.jpg").resize(fill().width(600).height(400)).delivery(format(auto()))
+        cardImage = cld.image("/brokerxchange/General Media/LogoImage_e2wt2b.png").resize(fill().width(400).height(400)).delivery(format(auto()))
             .delivery(quality(qAuto())).toURL()
     }
 
 
-    const logo = cld.image(buildingData.buildingsLogo).resize(fill().width(200).height(60)).delivery(format(auto()))
+    const logo = cld.image(buildingData.buildingsLogo).resize(fill().width(150).height(50)).delivery(format(auto()))
         .delivery(quality(qAuto())).toURL()
 
 
@@ -387,7 +397,7 @@ export const BuildingCard: React.FC<Props> = ({ buildingData, /* scrollRef */ })
                              pathname: '/building/[id]',
                              query: { id: buildingData.id, name: buildingData.name },
                          }} */
-                        href={`/building/${encodeURIComponent(buildingData.name)}`}
+                        href={`/building/${encodeURIComponent(buildingData.id)}`}
                     >
 
                         <BuildingTitle>{buildingData.name}</BuildingTitle>
@@ -456,18 +466,20 @@ export const BuildingCard: React.FC<Props> = ({ buildingData, /* scrollRef */ })
                         {/*  <BuildingDetailsCell></BuildingDetailsCell> */}
                         <BuildingDetailsCell style={{ height: "66.6666666%" }}>
                             <StyledCheckbox
+                                $checked={getCheckStatus()}
                                 checked={getCheckStatus()}
-                                onChange={handleCheckbox} hover={hover}></StyledCheckbox>
-                            <Link href={`/building/${encodeURIComponent(buildingData.name)}`}>
+                                onChange={handleCheckbox} $hover={hover}></StyledCheckbox>
+                            <Link href={`/building/${encodeURIComponent(buildingData.id)}`}>
                                 <StyledArrowCircle /* onClick={handleClick} */></StyledArrowCircle>
                             </Link>
                         </BuildingDetailsCell>
-                        <BuildingDetailsCell style={{ position: "relative" }}>
-                            <Image
+                        <BuildingDetailsCell style={{ position: "relative", width: "80%", margin: "auto", marginRight: "0rem"}}>
+                            <StyledImage
                                 src={logo}
                                 layout="fill"
                                 objectFit="contain"
-                                objectPosition="right"
+                                objectPosition="center"
+                                
                             /*  width={200}
                              height={50} */
                             />
