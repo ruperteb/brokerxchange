@@ -64,10 +64,17 @@ const Home: NextPage<Props> = ({ buildings, landlords }) => {
   const buildingsSearch = useAppSelector((state) => state.navigation.buildingsSearch)
 
   const qBuildings = query(collection(db, "buildings"), orderBy("name_lowerCase", "asc"), where('name_lowerCase', '>=', buildingsSearch.toLocaleLowerCase()), where('name_lowerCase', '<=', buildingsSearch.toLocaleLowerCase() + '~'));
+  const qBuildingsLoading = query(collection(db, "buildings"), orderBy("name_lowerCase", "asc"));
 
   const qLandlords = query(collection(db, "landlords"), orderBy("name_lowerCase", "asc"));
 
-  const [buildingsDataFirebase, loadingBuildings, errorBuildings] = useCollectionDataSSR(qBuildings, { idField: "id", startWith: buildings });
+  const getQBuildings = () => {
+    if(buildingsSearch !== undefined) {
+      return qBuildings
+    } else return qBuildingsLoading
+  }
+
+  const [buildingsDataFirebase, loadingBuildings, errorBuildings] = useCollectionDataSSR(getQBuildings(), { idField: "id", startWith: buildings });
 
   const [landlordsDataFirebase, loadingLandlords, errorLandlords] = useCollectionDataSSR(qLandlords, { idField: "id", startWith: landlords });
 
