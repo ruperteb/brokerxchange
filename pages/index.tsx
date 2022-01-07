@@ -82,20 +82,20 @@ const Home: NextPage<Props> = ({ buildings, landlords }) => {
   const dispatch = useAppDispatch()
 
   useEffect(() => {
-    if (auth.currentUser?.uid) {
+    if (user?.uid) {
       dispatch(navigationSlice.actions.setPanelView("buildings"))
     } else {
       dispatch(navigationSlice.actions.setPanelView("landing"))
     }
 
-  }, [auth.currentUser])
+  }, [user?.uid])
 
 
   React.useEffect(() => {
 
     /* if (auth.currentUser) { */
 
-    const qUserLists = query(collection(db, "users/" + auth.currentUser?.uid + "/lists"), orderBy("title", "asc"));
+    const qUserLists = query(collection(db, "users/" + user?.uid + "/lists"), orderBy("title", "asc"));
 
     var unsubscribe = onSnapshot(qUserLists, (userListsSnapshot) => {
       var dataUserLists = userListsSnapshot.docs.map((doc) => {
@@ -108,7 +108,7 @@ const Home: NextPage<Props> = ({ buildings, landlords }) => {
     unsubscribe()
     /*  } */
 
-  }, [auth.currentUser])
+  }, [user?.uid])
 
 
 
