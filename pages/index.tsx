@@ -26,6 +26,7 @@ import Navigation from "../components/buildings/Navigation"
 import MainPanel from "../components/MainPanel"
 import { useHeaderVisible } from '../utils/useHeaderVisible'
 
+
 const StyledContainer = styled(Container)`
 margin-top: 75px;
 `

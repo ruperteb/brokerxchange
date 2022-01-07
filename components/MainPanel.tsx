@@ -21,7 +21,10 @@ import BuildingsList from "./buildings/BuildingsList"
 import SavedLists from "./savedlists/SavedLists"
 import Landing from "./Landing"
 
-import ViewSavedListDialog from "./savedlists/ViewSavedListDialog"
+import dynamic from 'next/dynamic'
+
+const ViewSavedListDialog = dynamic(() => import( "./savedlists/ViewSavedListDialog"), 
+{ loading: () => <p>Loading</p>, ssr: false })
 
 import { useAuth } from '../utils/authProvider'
 
