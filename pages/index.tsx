@@ -105,7 +105,7 @@ const Home: NextPage<Props> = ({ buildings, landlords }) => {
       })
       dispatch(navigationSlice.actions.setSavedListsData(dataUserLists))
     })
-    unsubscribe()
+    /* unsubscribe() */
     /*  } */
 
   }, [user?.uid])
