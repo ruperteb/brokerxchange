@@ -164,8 +164,8 @@ export const ViewSavedListDialog: React.FC<Props> = ({ }) => {
     console.log("selected buidlings", selectedBuildings)
 
     React.useEffect(() => {
-
-        if (selectedListData) {
+        console.log(selectedListData)
+        if (selectedListData.buildings) {
 
             const fetchBuildingData = async (id: string) => {
                 const buildingRef = doc(db, "buildings", id);
