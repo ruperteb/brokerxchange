@@ -67,6 +67,20 @@ export const ViewSelectedBuildingsDialog: React.FC<Props> = ({ }) => {
         })
     };
 
+    const [PDFTitleDialogOpen, setPDFTitleDialogOpen] = React.useState(false);
+
+    const handlePDFTitleDialogOpen = () => {
+        setPDFTitleDialogOpen(true);
+    };
+
+    const handlePDFTitleDialogClose = () => {
+        setPDFTitleDialogOpen(false);
+        setListDetails({
+            title: "",
+            subTitle: "",
+        })
+    };
+
     const userAuth = useAppSelector(state => state.auth.auth)
 
     const dispatch = useAppDispatch()
@@ -314,7 +328,7 @@ export const ViewSelectedBuildingsDialog: React.FC<Props> = ({ }) => {
 
                 })
             handleSaveDialogClose()
-            
+
         }
 
 
@@ -442,6 +456,49 @@ export const ViewSelectedBuildingsDialog: React.FC<Props> = ({ }) => {
 
     }
 
+    const previewPDFClick = async () => {
+
+        const getBuildingData = async () => {
+
+            const getImages = async (building: any) => {
+
+                var filteredImages = building.imagesList?.filter((image: any) => {
+                    return image.checked === true
+                })
+
+                var tempImages = filteredImages?.map((image: any) => {
+                    if (image.checked === true) {
+                        return image.url
+                    }
+                })
+                return tempImages
+            }
+
+            const combineData = async () => {
+
+                var tempBuildingData = await selectedBuildings.map(async (building: DocumentData) => {
+                    var tempPremises = building.premises?.filter((premises: any) => {
+                        return premises.selected === true
+                    })
+                    var tempImages = await getImages(building)
+                    return { ...building, images: tempImages, premises: tempPremises }
+                })
+                return Promise.all(tempBuildingData)
+            }
+            var buildings = await combineData()
+            return buildings
+        }
+
+        dispatch(navigationSlice.actions.setPreviewPDFData({
+            title: listDetails.title,
+            subTitle: listDetails.subTitle,
+            buildings: await getBuildingData(),
+            lastUpdated: new Date().toISOString(),
+        }))
+        setPDFTitleDialogOpen(false)
+        dispatch(navigationSlice.actions.setViewPreviewPDFDialogOpen(true))
+    }
+
 
     return (
         <div>
@@ -474,6 +531,7 @@ export const ViewSelectedBuildingsDialog: React.FC<Props> = ({ }) => {
                 <DialogActions style={{ paddingBottom: "1rem" }}>
                     <Button onClick={handleClose}>Cancel</Button>
                     <Button style={{ paddingRight: "2rem" }} onClick={handleSaveDialogOpen}>Save List</Button>
+                    <Button style={{ paddingRight: "2rem" }} onClick={handlePDFTitleDialogOpen}>Preview PDF</Button>
                     <Button style={{ paddingRight: "2rem" }} onClick={() => listApiQuery()}>List</Button>
                 </DialogActions>
             </Dialog>
@@ -512,6 +570,43 @@ export const ViewSelectedBuildingsDialog: React.FC<Props> = ({ }) => {
                 <DialogActions>
                     <Button onClick={handleSaveDialogClose}>Cancel</Button>
                     <Button onClick={submitList}>Save List</Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog open={PDFTitleDialogOpen} onClose={handlePDFTitleDialogClose}>
+                <DialogTitle>List Details</DialogTitle>
+                <DialogContent>
+
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="Title"
+                        label="List Title"
+                        type="text"
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                        onChange={handleTitleChange}
+                        value={listDetails.title}
+                        error={listDetailsError.title} helperText={listDetailsError.title ? `Required` : ``}
+                    />
+                    <TextField
+                        /*  autoFocus */
+                        margin="dense"
+                        id="SubTitle"
+                        label="List Sub Title"
+                        type="text"
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                        onChange={handleSubTitleChange}
+                        value={listDetails.subTitle}
+                        error={listDetailsError.subTitle} helperText={listDetailsError.subTitle ? `Required` : ``}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handlePDFTitleDialogClose}>Cancel</Button>
+                    <Button onClick={previewPDFClick}>Preview PDF</Button>
                 </DialogActions>
             </Dialog>
 

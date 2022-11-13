@@ -118,6 +118,7 @@ interface Data {
     opCosts: number,
     otherRental: number,
     grossRental: number,
+    esc: number,
     openBays: number,
     openRate: number,
     openRatio: number,
@@ -262,6 +263,12 @@ const headCells: readonly HeadCell[] = [
         numeric: true,
         disablePadding: false,
         label: 'Gross Rental',
+    },
+    {
+        id: 'esc',
+        numeric: true,
+        disablePadding: false,
+        label: 'Esc',
     },
     /* {
         id: 'openBays',
@@ -478,6 +485,7 @@ interface Premises {
     opCosts: number,
     otherRental: number,
     grossRental: number,
+    esc: number,
     openBays: number,
     openRate: number,
     openRatio: number,
@@ -693,6 +701,7 @@ export const BuildingCardPremisesList: React.FC<Props> = ({ buildingId, premises
                                             <StyledTableCell>{+row.opCosts.toFixed(2)}</StyledTableCell>
                                             <StyledTableCell>{+row.otherRental.toFixed(2)}</StyledTableCell>
                                             <StyledTableCell>{+row.grossRental.toFixed(2)}</StyledTableCell>
+                                            <StyledTableCell>{+row.esc?.toFixed(1)}</StyledTableCell>
                                             {/* <StyledTableCell>{row.openBays}</StyledTableCell>
                                             <StyledTableCell>{row.openRate}</StyledTableCell>
                                             <StyledTableCell>{row.coveredBays}</StyledTableCell>

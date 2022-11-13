@@ -23,6 +23,7 @@ import UserAuth from "../components/userAuth/UserAuth"
 import { transientOptions } from "../utils/transientOptions"
 import { useDispatch } from "react-redux";
 import { AnimatePresence, motion } from "framer-motion";
+import { useAuth } from "../utils/authProvider";
 
 
 interface VisibilityProps {
@@ -126,6 +127,8 @@ interface Props {
 }
 
 export const Header: React.FunctionComponent<Props> = ({ }) => {
+
+    const user = useAuth()
 
     const dispatch = useAppDispatch()
 
@@ -234,7 +237,7 @@ export const Header: React.FunctionComponent<Props> = ({ }) => {
             </AnimatePresence>
 
             <AnimatePresence>
-                {panelView !== "landing" && (
+                {(panelView !== "landing" && user?.uid) && (
                     <StyledMenuOuterDiv $visible={visible} $modalAdjustment={modalAdjustment}>
                         <IconButton onClick={handleMenuClick} aria-label="menu" size="large">
                             <MenuOutlinedIcon fontSize="inherit" />

@@ -123,7 +123,7 @@ export const ImageSlider: React.FunctionComponent<Props> = ({ buildingImages, id
 
     var images: Image[] | undefined = []
 
-    if (buildingImages) {
+    if (buildingImages && buildingImages.length > 0 ) {
 
         images = buildingImages.map((image) => {
 

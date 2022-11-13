@@ -23,6 +23,11 @@ export interface NavigationState {
 
     viewSavedListDialogOpen: boolean,
     selectedList: DocumentData,
+    viewPreviewPDFDialogOpen: boolean,
+    previewPDFData: DocumentData,
+
+    viewLandlordDialogOpen: boolean,
+    selectedLandlord: DocumentData,
 
     buildingsData: DocumentData[],
     landlordsData: DocumentData[],
@@ -33,9 +38,14 @@ export interface NavigationState {
     addBuildingDialogOpen: boolean,
     editBuildingDialogOpen: boolean,
 
-
     addPremisesDialogOpen: boolean,
     editPremisesDialogOpen: boolean,
+
+    addLandlordDialogOpen: boolean,
+    editLandlordDialogOpen: boolean,
+
+    addContactDialogOpen: boolean,
+    editContactDialogOpen: boolean,
 
     headerVisible: boolean,
 
@@ -55,6 +65,11 @@ const initialState: NavigationState = {
 
     viewSavedListDialogOpen: false,
     selectedList: [],
+    viewPreviewPDFDialogOpen: false,
+    previewPDFData: {},
+
+    viewLandlordDialogOpen: false,
+    selectedLandlord: {},
 
     buildingsData: [],
     landlordsData: [],
@@ -67,6 +82,12 @@ const initialState: NavigationState = {
 
     addPremisesDialogOpen: false,
     editPremisesDialogOpen: false,
+
+    addLandlordDialogOpen: false,
+    editLandlordDialogOpen: false,
+
+    addContactDialogOpen: false,
+    editContactDialogOpen: false,
 
     headerVisible: false,
 
@@ -107,6 +128,18 @@ export const navigationSlice = createSlice({
         setSelectedList: (state, action: PayloadAction<DocumentData>) => {
             state.selectedList = action.payload;
         },
+        setViewPreviewPDFDialogOpen: (state, action: PayloadAction<boolean>) => {
+            state.viewPreviewPDFDialogOpen = action.payload;
+        },
+        setPreviewPDFData: (state, action: PayloadAction<DocumentData>) => {
+            state.previewPDFData = action.payload;
+        },
+        setViewLandlordDialogOpen: (state, action: PayloadAction<boolean>) => {
+            state.viewLandlordDialogOpen = action.payload;
+        },
+        setSelectedLandlord: (state, action: PayloadAction<DocumentData>) => {
+            state.selectedLandlord = action.payload;
+        },
         setBuildingsData: (state, action: PayloadAction<DocumentData[]>) => {
             state.buildingsData = action.payload;
         },
@@ -142,6 +175,18 @@ export const navigationSlice = createSlice({
         setEditPremisesDialog: (state, action: PayloadAction<boolean>) => {
             state.editPremisesDialogOpen = action.payload;
         },
+        setAddLandlordDialog: (state, action: PayloadAction<boolean>) => {
+            state.addLandlordDialogOpen = action.payload;
+        },
+        setEditLandlordDialog: (state, action: PayloadAction<boolean>) => {
+            state.editLandlordDialogOpen = action.payload;
+        },
+        setAddContactDialog: (state, action: PayloadAction<boolean>) => {
+            state.addContactDialogOpen = action.payload;
+        },
+        setEditContactDialog: (state, action: PayloadAction<boolean>) => {
+            state.editContactDialogOpen = action.payload;
+        },
         setHeaderVisible: (state, action: PayloadAction<boolean>) => {
             state.headerVisible = action.payload;
         },
@@ -174,12 +219,20 @@ export const {
     setSavedListsData,
     setViewSavedListDialogOpen,
     setSelectedList,
+    setViewPreviewPDFDialogOpen,
+    setPreviewPDFData,
+    setViewLandlordDialogOpen,
+    setSelectedLandlord,
     addSelectedBuilding,
     setModalAdjustment,
     setAddBuildingDialog,
     setEditBuildingDialog,
     setAddPremisesDialog,
     setEditPremisesDialog,
+    setAddLandlordDialog,
+    setEditLandlordDialog,
+    setAddContactDialog,
+    setEditContactDialog,
     setHeaderVisible,
 } = navigationSlice.actions;
 

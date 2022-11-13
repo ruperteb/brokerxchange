@@ -44,16 +44,32 @@ const StyledInput = styled(TextField)`
 
 const StyledPremisesName = styled(StyledInput)`
 &.MuiTextField-root {
-     width: 60%;
+     width: 47%;
+     margin-left: 0px;
+}
+`
+
+const StyledPremisesEsc = styled(StyledInput)`
+&.MuiTextField-root {
+     width: 17%;
+     margin-left: 0px;
+}
+& input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
 }
 `
 
 
 const StyledTypeSelect = styled(Select)`
-width: 40%;
+width: 32%;
 margin: auto;
+margin-right: 0px;
 padding: 0.5rem;
 padding-right: 0px;
+padding-left: 0px;
+margin-left: 0px;
 /* height: 40px; */
 `
 
@@ -103,6 +119,7 @@ interface Premises {
     opCosts: number,
     otherRental: number,
     grossRental: number,
+    esc: number,
     openBays: number,
     openRate: number,
     openRatio: number,
@@ -119,7 +136,7 @@ interface Props {
     buildingId: string,
     premises: Premises[],
     selectedPremises: Premises,
-    
+
 }
 
 export const EditPremisesDialog: React.FC<Props> = ({ buildingId, premises, selectedPremises }) => {
@@ -132,7 +149,7 @@ export const EditPremisesDialog: React.FC<Props> = ({ buildingId, premises, sele
         dispatch(navigationSlice.actions.setEditPremisesDialog(false))
         setCompleted({});
         setActiveStep(0)
-        
+
     };
 
 
@@ -155,6 +172,7 @@ export const EditPremisesDialog: React.FC<Props> = ({ buildingId, premises, sele
         opCosts: number,
         otherRental: number,
         grossRental: number,
+        esc: number,
         openBays: number,
         openRate: number,
         openRatio: number,
@@ -176,6 +194,7 @@ export const EditPremisesDialog: React.FC<Props> = ({ buildingId, premises, sele
         opCosts: selectedPremises.opCosts,
         otherRental: selectedPremises.otherRental,
         grossRental: selectedPremises.grossRental,
+        esc: selectedPremises.esc,
         openBays: selectedPremises.openBays,
         openRate: selectedPremises.openRate,
         openRatio: selectedPremises.openRatio,
@@ -282,6 +301,10 @@ export const EditPremisesDialog: React.FC<Props> = ({ buildingId, premises, sele
         (e: any) => {
             setPremisesDetails({ ...premisesDetails, grossRental: Number(e.target.value) })
         }, [premisesDetails])
+    const handleEscChange = React.useCallback(
+        (e: any) => {
+            setPremisesDetails({ ...premisesDetails, esc: Number(e.target.value) })
+        }, [premisesDetails])
     const handleOpenBaysChange = React.useCallback(
         (e: any) => {
             setPremisesDetails({ ...premisesDetails, openBays: Number(e.target.value), openRatio: Number(e.target.value) / (premisesDetails.area / 100) })
@@ -339,6 +362,7 @@ export const EditPremisesDialog: React.FC<Props> = ({ buildingId, premises, sele
             opCosts: premisesDetails.opCosts,
             otherRental: premisesDetails.otherRental,
             grossRental: premisesDetails.grossRental,
+            esc: premisesDetails.esc,
             openBays: premisesDetails.openBays,
             openRate: premisesDetails.openRate,
             openRatio: premisesDetails.openRatio,
@@ -505,12 +529,27 @@ export const EditPremisesDialog: React.FC<Props> = ({ buildingId, premises, sele
                             onChange={handleNameChange}
                             value={premisesDetails.name}
                         />
+                        <StyledPremisesEsc
+                            type="number"
+                            size="small"
+                            id="Esc"
+                            label="Esc"
+                            variant="outlined"
+                            onChange={handleEscChange}
+                            value={premisesDetails.esc !== 0 ? premisesDetails.esc : null}
+                            InputProps={{
+                                endAdornment: <StyledInputAdornment position="end">%</StyledInputAdornment>,
+                            }}
+                            InputLabelProps={{ shrink: true }}
+                            
+                        /* defaultValue="Hello World" */
+                        />
                         <StyledTypeSelect
 
                             /* ref={suburbRef} */
                             key="Premises Type"
                             /* isMulti */
-                            placeholder="Premises Type"
+                            placeholder="Type"
                             styles={customSelectStyles}
                             options={typeOptions}
                             onChange={onSelectType}
@@ -706,7 +745,7 @@ export const EditPremisesDialog: React.FC<Props> = ({ buildingId, premises, sele
                             }}
                             InputLabelProps={{ shrink: true }}
                         />
-                     
+
                     </StyledPremisesDetails>
                 )
         }

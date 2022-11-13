@@ -20,6 +20,10 @@ import { collection, query, onSnapshot, orderBy, getDocs, DocumentData, addDoc, 
 /* import { stringify } from 'querystring'; */
 
 import BuildingCard from './buildingcard/BuildingCard'
+import Typography from '@mui/material/Typography';
+
+import PreviewPDFDialog from './PreviewPDFDialog';
+
 
 
 const StyledBuildingDetails = styled.div`
@@ -45,7 +49,28 @@ const StyledBuildingName = styled(StyledInput)`
 }
 `
 
+const StyledTitleDiv = styled.div`
+display: flex;
+flex-direction: column;
+`
 
+const StyledTitleText = styled(Typography)`
+font-family: 'Segoe UI', sans-serif;
+font-weight: 600;
+font-size: 1.5rem;
+color: black;
+margin: auto;
+/* margin-left: 1.5rem; */
+`
+
+const StyledSubTitleText = styled(Typography)`
+font-family: 'Segoe UI', sans-serif;
+font-weight: 400;
+font-size: 1.2rem;
+color: black;
+margin: auto;
+/* margin-left: 1.5rem; */
+`
 
 interface Props {
 
@@ -441,6 +466,16 @@ export const ViewSavedListDialog: React.FC<Props> = ({ }) => {
 
     }
 
+    const previewPDFClick = () => {
+        dispatch(navigationSlice.actions.setPreviewPDFData({
+            title: selectedListData.title,
+            subTitle: selectedListData.subTitle,
+            buildings: selectedBuildings,
+            lastUpdated: selectedListData.lastUpdated,
+        }))
+        dispatch(navigationSlice.actions.setViewPreviewPDFDialogOpen(true))
+    }
+
 
     return (
         <div>
@@ -460,7 +495,12 @@ export const ViewSavedListDialog: React.FC<Props> = ({ }) => {
                 }}
             /* transitionDuration={{ enter: 1000, exit: 1000 }} */
             >
-                <DialogTitle>{selectedListData.title}</DialogTitle>
+                <DialogTitle>
+                    <StyledTitleDiv>
+                        <StyledTitleText>{selectedListData.title}</StyledTitleText>
+                        <StyledSubTitleText>{selectedListData.subTitle}</StyledSubTitleText>
+                    </StyledTitleDiv>
+                </DialogTitle>
                 <DialogContent>
                     {selectedBuildings?.map((building: BuildingDetails, index: number) =>
                         <BuildingCard key={building.id} buildingData={building} index={index} handleCheckboxClick={handleCheckboxClick} handleCheckboxAllClick={handleCheckboxAllClick} handleImageCheck={handleImageCheck} handleImageOrderSelect={handleImageOrderSelect} ></BuildingCard>
@@ -473,7 +513,8 @@ export const ViewSavedListDialog: React.FC<Props> = ({ }) => {
                 <DialogActions style={{ paddingBottom: "1rem" }}>
                     <Button onClick={handleClose}>Cancel</Button>
                     <Button style={{ paddingRight: "2rem" }} onClick={handleSaveDialogOpen}>Save List</Button>
-                    <Button style={{ paddingRight: "2rem" }} onClick={() => listApiQuery()}>List</Button>
+                    <Button style={{ paddingRight: "2rem" }} onClick={previewPDFClick}>Preview PDF</Button>
+                    {/* <Button style={{ paddingRight: "2rem" }} onClick={() => listApiQuery()}>List</Button> */}
                 </DialogActions>
             </Dialog>
 
@@ -513,6 +554,8 @@ export const ViewSavedListDialog: React.FC<Props> = ({ }) => {
                     <Button onClick={submitList}>Save List</Button>
                 </DialogActions>
             </Dialog>
+
+            <PreviewPDFDialog></PreviewPDFDialog>
 
         </div>
     );
