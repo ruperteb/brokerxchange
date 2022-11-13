@@ -109,6 +109,10 @@ const MenuDrawer: React.FC<Props> = ({ }) => {
         dispatch(navigationSlice.actions.setPanelView("buildings"))
     };
 
+    const handleLandlordsClick = () => {
+        dispatch(navigationSlice.actions.setPanelView("landlords"))
+    };
+
     const handleSavedListsClick = () => {
         dispatch(navigationSlice.actions.setPanelView("lists"))
     };
@@ -172,7 +176,7 @@ const MenuDrawer: React.FC<Props> = ({ }) => {
                     </ListItemIcon>
                     <ListItemText primary={"Users"} />
                 </ListItem>
-                <ListItem button >
+                <ListItem onClick={handleLandlordsClick} button >
                     <ListItemIcon>
                         <BusinessOutlinedIcon />
                     </ListItemIcon>

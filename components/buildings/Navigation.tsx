@@ -61,6 +61,7 @@ export const Navigation: React.FunctionComponent<Props> = ({ }) => {
 
 
     const dispatch = useAppDispatch()
+    const panelView = useAppSelector((state) => state.navigation.panelView)
     const buildingsData = useAppSelector((state) => state.navigation.buildingsData)
 
     const desktop = useMediaQuery('(min-width:1024px)');
@@ -72,9 +73,33 @@ export const Navigation: React.FunctionComponent<Props> = ({ }) => {
         dispatch(navigationSlice.actions.setBuildingsSearch(inputValue))
     }, [inputValue])
 
+    const getAddButton = () => {
+        switch (panelView) {
+            case "buildings":
+                return userAuth.role === "admin" ? <StyledButton variant="outlined" startIcon={<AddIcon />} onClick={handleAddBuildingButton}>Add</StyledButton> : <></>
+
+            case "landlords":
+                return userAuth.role === "admin" ? <StyledButton variant="outlined" startIcon={<AddIcon />} onClick={handleAddLandlordButton}>Add</StyledButton> : <></>
+
+            case "lists":
+                return <></>
+
+            default:
+                break;
+        }
+
+    }
+
     const handleAddBuildingButton = () => {
 
         dispatch(navigationSlice.actions.setAddBuildingDialog(true))
+        dispatch(navigationSlice.actions.setModalAdjustment(true))
+
+    }
+
+    const handleAddLandlordButton = () => {
+
+        dispatch(navigationSlice.actions.setAddLandlordDialog(true))
         dispatch(navigationSlice.actions.setModalAdjustment(true))
 
     }
@@ -109,9 +134,9 @@ export const Navigation: React.FunctionComponent<Props> = ({ }) => {
                     renderInput={(params) => <TextField {...params} label="Search" />}
                 />
 
-                <StyledButton variant="outlined" startIcon={<FilterAltOutlinedIcon />}>Filter </StyledButton>
+                {panelView === "buildings" ? <StyledButton variant="outlined" startIcon={<FilterAltOutlinedIcon />}>Filter </StyledButton>: <></>}
 
-                {userAuth.role === "admin" ? <StyledButton variant="outlined" startIcon={<AddIcon />} onClick={handleAddBuildingButton}>Add</StyledButton> : <></>}
+                {getAddButton()}
 
             </StyledStack>
         </NavContainer>

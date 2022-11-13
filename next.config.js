@@ -15,6 +15,13 @@ module.exports = {
 			config.resolve.fallback.worker_threads = false;
 			config.resolve.fallback.tls = false;
 		}
+		config.module.rules.push(
+			{
+			  test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
+			  type: 'asset/resource',
+			},
+			// ...
+		  );
 		return config;
 	}
 }

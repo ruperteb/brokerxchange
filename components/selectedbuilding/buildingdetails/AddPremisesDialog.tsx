@@ -44,16 +44,32 @@ const StyledInput = styled(TextField)`
 
 const StyledPremisesName = styled(StyledInput)`
 &.MuiTextField-root {
-     width: 60%;
+     width: 47%;
+     margin-left: 0px;
+}
+`
+
+const StyledPremisesEsc = styled(StyledInput)`
+&.MuiTextField-root {
+     width: 17%;
+     margin-left: 0px;
+}
+& input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
 }
 `
 
 
 const StyledTypeSelect = styled(Select)`
-width: 40%;
+width: 32%;
 margin: auto;
+margin-right: 0px;
 padding: 0.5rem;
 padding-right: 0px;
+padding-left: 0px;
+margin-left: 0px;
 /* height: 40px; */
 `
 
@@ -103,6 +119,7 @@ interface Premises {
     opCosts: number,
     otherRental: number,
     grossRental: number,
+    esc: number,
     openBays: number,
     openRate: number,
     openRatio: number,
@@ -140,6 +157,7 @@ export const AddPremisesDialog: React.FC<Props> = ({ buildingId, premises }) => 
             opCosts: 0,
             otherRental: 0,
             grossRental: 0,
+            esc: 0,
             openBays: 0,
             openRate: 0,
             openRatio: 0,
@@ -175,6 +193,7 @@ export const AddPremisesDialog: React.FC<Props> = ({ buildingId, premises }) => 
         opCosts: number,
         otherRental: number,
         grossRental: number,
+        esc: number,
         openBays: number,
         openRate: number,
         openRatio: number,
@@ -196,6 +215,7 @@ export const AddPremisesDialog: React.FC<Props> = ({ buildingId, premises }) => 
         opCosts: 0,
         otherRental: 0,
         grossRental: 0,
+        esc: 0,
         openBays: 0,
         openRate: 0,
         openRatio: 0,
@@ -308,6 +328,10 @@ export const AddPremisesDialog: React.FC<Props> = ({ buildingId, premises }) => 
         (e: any) => {
             setPremisesDetails({ ...premisesDetails, grossRental: Number(e.target.value) })
         }, [premisesDetails])
+    const handleEscChange = React.useCallback(
+        (e: any) => {
+            setPremisesDetails({ ...premisesDetails, esc: Number(e.target.value) })
+        }, [premisesDetails])
     const handleOpenBaysChange = React.useCallback(
         (e: any) => {
             setPremisesDetails({ ...premisesDetails, openBays: Number(e.target.value), openRatio: Number(e.target.value) / (premisesDetails.area / 100) })
@@ -369,6 +393,7 @@ export const AddPremisesDialog: React.FC<Props> = ({ buildingId, premises }) => 
             opCosts: premisesDetails.opCosts,
             otherRental: premisesDetails.otherRental,
             grossRental: premisesDetails.grossRental,
+            esc: premisesDetails.esc,
             openBays: premisesDetails.openBays,
             openRate: premisesDetails.openRate,
             openRatio: premisesDetails.openRatio,
@@ -457,6 +482,7 @@ export const AddPremisesDialog: React.FC<Props> = ({ buildingId, premises }) => 
             opCosts: 0,
             otherRental: 0,
             grossRental: 0,
+            esc: 0,
             openBays: 0,
             openRate: 0,
             openRatio: 0,
@@ -534,6 +560,23 @@ export const AddPremisesDialog: React.FC<Props> = ({ buildingId, premises }) => 
                             variant="outlined"
                             onChange={handleNameChange}
                             value={premisesDetails.name}
+                            InputLabelProps={{ shrink: true }}
+                        /* defaultValue="Hello World" */
+                        />
+
+                        <StyledPremisesEsc
+                            type="number"
+                            size="small"
+                            id="Esc"
+                            label="Esc"
+                            variant="outlined"
+                            onChange={handleEscChange}
+                            value={premisesDetails.esc !== 0 ? premisesDetails.esc : null}
+                            InputProps={{
+                                endAdornment: <StyledInputAdornment position="end">%</StyledInputAdornment>,
+                            }}
+                            InputLabelProps={{ shrink: true }}
+                            
                         /* defaultValue="Hello World" */
                         />
                         <StyledTypeSelect
@@ -541,7 +584,7 @@ export const AddPremisesDialog: React.FC<Props> = ({ buildingId, premises }) => 
                             /* ref={suburbRef} */
                             key="Premises Type"
                             /* isMulti */
-                            placeholder="Premises Type"
+                            placeholder="Type"
                             styles={customSelectStyles}
                             options={typeOptions}
                             onChange={onSelectType}
@@ -549,6 +592,7 @@ export const AddPremisesDialog: React.FC<Props> = ({ buildingId, premises }) => 
                             menuPortalTarget={document.body}
                             value={premisesDetails.type !== "" ? { value: premisesDetails.type, label: premisesDetails.type } : null}
                         />
+
                         <StyledTextInput
                             size="small"
                             id="Floor / Unit"
@@ -557,6 +601,7 @@ export const AddPremisesDialog: React.FC<Props> = ({ buildingId, premises }) => 
                             onChange={handleFloorChange}
                             /* defaultValue="Hello World" */
                             value={premisesDetails.floor !== "" ? premisesDetails.floor : null}
+                            InputLabelProps={{ shrink: true }}
                         />
                         <StyledTextInput
                             type="number"
@@ -569,6 +614,7 @@ export const AddPremisesDialog: React.FC<Props> = ({ buildingId, premises }) => 
                             InputProps={{
                                 endAdornment: <StyledInputAdornment position="end">m²</StyledInputAdornment>,
                             }}
+                            InputLabelProps={{ shrink: true }}
                         /* defaultValue="Hello World" */
                         />
 
@@ -584,6 +630,7 @@ export const AddPremisesDialog: React.FC<Props> = ({ buildingId, premises }) => 
                             InputProps={{
                                 endAdornment: <StyledInputAdornment position="end">R/m²</StyledInputAdornment>,
                             }}
+                            InputLabelProps={{ shrink: true }}
                         /* defaultValue="Hello World" */
                         />
                         <StyledTextInput
@@ -597,6 +644,7 @@ export const AddPremisesDialog: React.FC<Props> = ({ buildingId, premises }) => 
                             InputProps={{
                                 endAdornment: <StyledInputAdornment position="end">R/m²</StyledInputAdornment>,
                             }}
+                            InputLabelProps={{ shrink: true }}
                         /* defaultValue="Hello World" */
                         />
                         <StyledTextInput
@@ -610,6 +658,7 @@ export const AddPremisesDialog: React.FC<Props> = ({ buildingId, premises }) => 
                             InputProps={{
                                 endAdornment: <StyledInputAdornment position="end">R/m²</StyledInputAdornment>,
                             }}
+                            InputLabelProps={{ shrink: true }}
                         /* defaultValue="Hello World" */
                         />
                         <StyledTextInput
@@ -624,6 +673,7 @@ export const AddPremisesDialog: React.FC<Props> = ({ buildingId, premises }) => 
                             InputProps={{
                                 endAdornment: <StyledInputAdornment position="end">R/m²</StyledInputAdornment>,
                             }}
+                            InputLabelProps={{ shrink: true }}
                         /* defaultValue="Hello World" */
                         />
 

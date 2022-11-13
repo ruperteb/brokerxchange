@@ -112,6 +112,7 @@ interface Data {
     opCosts: number,
     otherRental: number,
     grossRental: number,
+    esc: number,
     openBays: number,
     openRate: number,
     openRatio: number,
@@ -256,6 +257,12 @@ const headCells: readonly HeadCell[] = [
         numeric: true,
         disablePadding: false,
         label: 'Gross Rental',
+    },
+    {
+        id: 'esc',
+        numeric: true,
+        disablePadding: false,
+        label: 'Esc',
     },
     /* {
         id: 'openBays',
@@ -487,16 +494,16 @@ const ParkingPopoverContents: React.FC<ParkingPopoverContentsProps> = ({ row }) 
 
                 <TableBody>
                     <TableRow>
-                        <TableCell style={{ textAlign: "center" }}>{+row.openBays.toFixed(2)}</TableCell>
-                        <TableCell style={{ textAlign: "center" }}>{+row.openRate.toFixed(2)}</TableCell>
-                        <TableCell style={{ textAlign: "center" }}>{+row.openRatio.toFixed(2)}</TableCell>
-                        <TableCell style={{ textAlign: "center" }}>{+row.coveredBays.toFixed(2)}</TableCell>
-                        <TableCell style={{ textAlign: "center" }}>{+row.coveredRate.toFixed(2)}</TableCell>
-                        <TableCell style={{ textAlign: "center" }}>{+row.coveredRatio.toFixed(2)}</TableCell>
-                        <TableCell style={{ textAlign: "center" }}>{+row.shadedBays.toFixed(2)}</TableCell>
-                        <TableCell style={{ textAlign: "center" }}>{+row.shadedRate.toFixed(2)}</TableCell>
-                        <TableCell style={{ textAlign: "center" }}>{+row.shadedRatio.toFixed(2)}</TableCell>
-                        <TableCell style={{ textAlign: "center" }}>{+row.parkingRatio.toFixed(2)}</TableCell>
+                        <TableCell style={{ textAlign: "center" }}>{row.openBays !== 0 ? +row.openBays.toFixed(2) : null}</TableCell>
+                        <TableCell style={{ textAlign: "center" }}>{row.openRate !== 0 ? +row.openRate.toFixed(2) : null}</TableCell>
+                        <TableCell style={{ textAlign: "center" }}>{row.openRatio !== 0 ? +row.openRatio.toFixed(2) : null}</TableCell>
+                        <TableCell style={{ textAlign: "center" }}>{row.coveredBays !== 0 ? +row.coveredBays.toFixed(2) : null}</TableCell>
+                        <TableCell style={{ textAlign: "center" }}>{row.coveredRate !== 0 ? +row.coveredRate.toFixed(2) : null}</TableCell>
+                        <TableCell style={{ textAlign: "center" }}>{row.coveredRatio !== 0 ? +row.coveredRatio.toFixed(2) : null}</TableCell>
+                        <TableCell style={{ textAlign: "center" }}>{row.shadedBays !== 0 ? +row.shadedBays.toFixed(2) : null}</TableCell>
+                        <TableCell style={{ textAlign: "center" }}>{row.shadedRate !== 0 ? +row.shadedRate.toFixed(2) : null}</TableCell>
+                        <TableCell style={{ textAlign: "center" }}>{row.shadedRatio !== 0 ? +row.shadedRatio.toFixed(2) : null}</TableCell>
+                        <TableCell style={{ textAlign: "center" }}>{row.parkingRatio !== 0 ? +row.parkingRatio.toFixed(2) : null}</TableCell>
 
 
 
@@ -520,6 +527,7 @@ interface Premises {
     opCosts: number,
     otherRental: number,
     grossRental: number,
+    esc: number,
     openBays: number,
     openRate: number,
     openRatio: number,
@@ -685,6 +693,7 @@ export const PremisesList: React.FC<Props> = ({ buildingId, premises }) => {
             opCosts: row.opCosts,
             otherRental: row.otherRental,
             grossRental: row.grossRental,
+            esc: row.esc,
             openBays: row.openBays,
             openRate: row.openRate,
             openRatio: row.openRatio,
@@ -853,6 +862,7 @@ export const PremisesList: React.FC<Props> = ({ buildingId, premises }) => {
         opCosts: 0,
         otherRental: 0,
         grossRental: 0,
+        esc: 0,
         openBays: 0,
         openRate: 0,
         openRatio: 0,
@@ -937,18 +947,19 @@ export const PremisesList: React.FC<Props> = ({ buildingId, premises }) => {
                                             <StyledTableCell style={{ textAlign: "left", paddingLeft: "15px" }}>{row.name}</StyledTableCell>
                                             <StyledTableCell>{row.floor}</StyledTableCell>
                                             <StyledTableCell>{row.type}</StyledTableCell>
-                                            <StyledTableCell>{+row.area.toFixed(2)}</StyledTableCell>
-                                            <StyledTableCell>{+row.netRental.toFixed(2)}</StyledTableCell>
-                                            <StyledTableCell>{+row.opCosts.toFixed(2)}</StyledTableCell>
-                                            <StyledTableCell>{+row.otherRental.toFixed(2)}</StyledTableCell>
-                                            <StyledTableCell>{+row.grossRental.toFixed(2)}</StyledTableCell>
+                                            <StyledTableCell>{row.area !== 0 ? +row.area.toFixed(2) : null}</StyledTableCell>
+                                            <StyledTableCell>{row.netRental !== 0 ? +row.netRental.toFixed(2) : null}</StyledTableCell>
+                                            <StyledTableCell>{row.opCosts !== 0 ? +row.opCosts.toFixed(2) : null}</StyledTableCell>
+                                            <StyledTableCell>{row.otherRental !== 0 ? +row.otherRental.toFixed(2) : null}</StyledTableCell>
+                                            <StyledTableCell>{row.grossRental !== 0 ? +row.grossRental.toFixed(2) : null}</StyledTableCell>
+                                            <StyledTableCell>{row.esc !== 0 ? +row.esc?.toFixed(1) : null}</StyledTableCell>
                                             {/* <StyledTableCell>{row.openBays}</StyledTableCell>
                                             <StyledTableCell>{row.openRate}</StyledTableCell>
                                             <StyledTableCell>{row.coveredBays}</StyledTableCell>
                                             <StyledTableCell>{row.coveredRate}</StyledTableCell>
                                             <StyledTableCell>{row.shadedBays}</StyledTableCell>
                                             <StyledTableCell>{row.shadedRate}</StyledTableCell> */}
-                                            <StyledTableCell>{+row.parkingRatio.toFixed(1)}</StyledTableCell>
+                                            <StyledTableCell>{row.parkingRatio !== 0 ? +row.parkingRatio.toFixed(1) : null}</StyledTableCell>
                                             <StyledTableCell style={{ paddingTop: "16px", paddingRight: "16px" }}>{row.vacant ? <CheckCircleOutlinedIcon color="primary" /> : <CancelOutlinedIcon color="error" />}</StyledTableCell>
                                             <StyledTableCell style={{ paddingRight: "0px" }}>
                                                 <IconButton onClick={(e) => handleParkingPopoverClick(e, row.id)}>

@@ -18,6 +18,7 @@ import MenuDrawer from "./buildings/MenuDrawer"
 import { transientOptions } from "../utils/transientOptions"
 
 import BuildingsList from "./buildings/BuildingsList"
+import LandlordsList from "./landlords/LandlordsList"
 import SavedLists from "./savedlists/SavedLists"
 import Landing from "./Landing"
 
@@ -27,6 +28,8 @@ const ViewSavedListDialog = dynamic(() => import("./savedlists/ViewSavedListDial
     { loading: () => <p>Loading</p>, ssr: false })
 
 import { useAuth } from '../utils/authProvider'
+import LandlordDialog from "./landlords/LandlordDialog"
+import AddLandlordDialog from "./landlords/AddLandlordDialog"
 
 const StyledContainer = styled(Container)`
 margin-top: 160px;
@@ -70,6 +73,8 @@ export const BuildingsPanel: React.FC<Props> = ({ }) => {
                 return <Landing />
             case "buildings":
                 return <BuildingsList />
+            case "landlords":
+                return <LandlordsList />
             case "lists":
                 return <SavedLists />
 
@@ -89,7 +94,7 @@ export const BuildingsPanel: React.FC<Props> = ({ }) => {
             <SelectedBuildingsDrawer></SelectedBuildingsDrawer>
 
             <AnimatePresence>
-                {selectedBuildings.length !== 0 && (
+                {(selectedBuildings.length !== 0 && panelView === "buildings") && (
                     <StyledDrawerButtonDiv
                         $modalAdjustment={modalAdjustment}
                         initial={{ opacity: 0 }}
@@ -108,6 +113,8 @@ export const BuildingsPanel: React.FC<Props> = ({ }) => {
             <AddBuildingDialog></AddBuildingDialog>
             <ViewSelectedBuildingsDialog></ViewSelectedBuildingsDialog>
             {user?.uid ? <ViewSavedListDialog></ViewSavedListDialog> : <></>}
+            <LandlordDialog></LandlordDialog>
+            <AddLandlordDialog></AddLandlordDialog>
             <MenuDrawer></MenuDrawer>
 
         </StyledContainer>
